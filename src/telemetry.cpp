@@ -12,6 +12,7 @@ pros::Mutex encoders_mutex;
 
 pros::ADIEncoder left_base_encoder(LEFT_BASE_ENCODER_INPUT_PORT, LEFT_BASE_ENCODER_OUTPUT_PORT, false);
 pros::ADIEncoder right_base_encoder(LEFT_BASE_ENCODER_INPUT_PORT, LEFT_BASE_ENCODER_OUTPUT_PORT, false);
+pros::ADIPort selector(SELECTOR_PORT);
 
 double encoderValue;
 double baseEncoderAvg;
@@ -156,7 +157,7 @@ void chuteGet(void* pointerParam) {
       //Print Staements
       pros::lcd::print(1, "Lower Line Sensor: %d", lower_line_sensor.get_value());
       pros::lcd::print(2, "Upper Line Sensor: %d", upper_line_sensor.get_value());
-//      pros::lcd::print(3, "Selector %d", selector.get_value());
+      pros::lcd::print(3, "Selector %d", selector.get_value());
       pros::lcd::print(4, "Optical Value: %f", optical_sensor.get_hue()); //reading out -4194304
       pros::lcd::print(5, "Optical Light: %d", optical_sensor.get_led_pwm()); //reading out 2147483647
 
