@@ -112,7 +112,7 @@ void chuteSmartIndexingControl(void* param) {
         if (chute_mutex.take(MUTEX_WAIT_SHORT)) {
         if (ballPos2Get()) {
             if (ballPos2ColorGet() == RED) { //this will be adjusted later to be customizable based on match
-                while (!ballLeave) {
+                while (!ballLeaveGet()) {
                     chuteEject(127); //eject until the ball is seen leaving
                 }
                 chuteEject(0); //turn off motors
@@ -154,5 +154,5 @@ void chuteSmartIndexingControl(void* param) {
 
 void chuteControlTaskInit() {
 pros::Task chute_task(chuteSmartIndexingControl,(void*)"CHUTE_TASK");
-pros::Task intake_task(intakeContrl,(void*)"INTAKE_TASK");
+pros::Task intake_task(intakeControl,(void*)"INTAKE_TASK");
 }
