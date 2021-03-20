@@ -18,18 +18,27 @@ extern "C" {
 
 extern pros::ADIPort selector;
 
-
+//tasks
 void telemetryGetTaskInit();
-void gyroGetTaskInit();
-double gyroGetAbsolute();
-double gyroGetLocal();
-void chuteGet();
+
+//auton getters
+double getBaseEncodersAvg();
+double getBaseEncoderRotation();
+double getDriveMotorsEncoderAvg();
+double getDriveMotorsEncoderRotation();
+double getRotation();
+
+//chute control getters
 bool ballPos1Get();
 bool ballPos2Get();
 bool ballPos3Get();
 bool ballPos1ColorGet();
 bool ballPos2ColorGet();
 bool ballPos3ColorGet();
+
+//debug getters
+double encoderGet(pros::ADIEncoder encoder);
+
 
 #endif
 #ifdef __cplusplus

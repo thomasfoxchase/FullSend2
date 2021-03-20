@@ -119,7 +119,7 @@ void inertialGet(void* param) {
   }
 }
 
-double rotationGet() {
+double getRotation() {
   return inertialRotation;
 }
 

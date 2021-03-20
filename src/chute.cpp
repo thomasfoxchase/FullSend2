@@ -113,9 +113,6 @@ void chuteSmartControl(void* param) {
       //based on those two logic bits, assign a true false and red blues identifier to each pos
       //use this data to govern the ball movements
 
-
-
-
 }
 
 
