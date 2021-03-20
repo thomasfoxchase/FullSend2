@@ -20,7 +20,7 @@ double baseEncoderRotation;
 double driveMotorEncoderAvg;
 double driveMotorEncoderRotation;
 
-//stores calculated encoder values into diff variables that can be accessed by the follwing functions
+//stores calculated encoder values into diff variables that can be accessed by the following functions
 void baseEncodersGet(void* param) {
   std::uint32_t now = pros::millis();
   while (true) {
@@ -79,7 +79,7 @@ double getBaseEncodersAvg() {
   return baseEncoderAvg;
 }
 
-//returns the differnence of the average of 3 base encoders on each side of the base
+//returns the difference of the average of 3 base encoders on each side of the base
 double getBaseEncoderRotation() {
   return baseEncoderRotation;
 }
@@ -89,7 +89,7 @@ double getDriveMotorsEncoderAvg() {
   return driveMotorEncoderAvg;
 }
 
-//returns the differnence of the average of 3 motor encoders on each side of the base
+//returns the difference of the average of 3 motor encoders on each side of the base
 double getDriveMotorsEncoderRotation() {
   return driveMotorEncoderAvg;
 }
@@ -97,7 +97,7 @@ double getDriveMotorsEncoderRotation() {
 
 
 
-//inertial tracking (ratation only right now)
+//inertial tracking (rotation only right now)
 
 pros::Mutex inertial_mutex;
 
@@ -109,7 +109,7 @@ void inertialGet(void* param) {
   std::uint32_t now = pros::millis();
   while (true) {
     if (inertial_mutex.take(MUTEX_WAIT_SHORT)) {
-      //set gyroRoation to the inertial sensor's output
+      //set gyroRotation to the inertial sensor's output
       inertialRotation = -inertial.get_rotation();
       // printf("%i, %6.1f\n", pros::millis(), inertialRotation);
       pros::lcd::print(6, "Rotation Degrees: %6.1f", inertialRotation);
@@ -154,12 +154,14 @@ void chuteGet(void* pointerParam) {
 
       // optical_sensor.disable_gesture();
       optical_sensor.set_led_pwm(50);
-      //Print Staements
+      //Print Statements
       pros::lcd::print(1, "Lower Line Sensor: %d", lower_line_sensor.get_value());
       pros::lcd::print(2, "Upper Line Sensor: %d", upper_line_sensor.get_value());
       pros::lcd::print(3, "Selector %d", selector.get_value());
       pros::lcd::print(4, "Optical Value: %f", optical_sensor.get_hue()); //reading out -4194304
       pros::lcd::print(5, "Optical Light: %d", optical_sensor.get_led_pwm()); //reading out 2147483647
+
+
 
       // std::cout << "Lower Line Sensor: " << (lower_line_sensor.get_value())<< std::endl;
       // std::cout << "Upper Line Sensor: " << (upper_line_sensor.get_value())<< "\n" << std::endl;
@@ -208,7 +210,7 @@ void chuteGet(void* pointerParam) {
 
 //one ball at top, we can assume it is the correct color because it would have been ejected otherwise
 //ball enters bot
-  //identify its color >> index it to middle, or eject it (should the ejcect logic not come into play until its reached the middle state?)
+  //identify its color >> index it to middle, or eject it (should the eject logic not come into play until its reached the middle state?)
 
 //two balls in robot, they both will be the correct color if this state has been reached
 //ball enters bot
@@ -219,12 +221,12 @@ void chuteGet(void* pointerParam) {
 
 
 
-//INTAKE ANS INDEX LOGIC >> Know color system (just telemerty read outs)
+//INTAKE ANS INDEX LOGIC >> Know color system (just telemetry read outs)
 //begin >> no balls in bot, all three sensors read neg on present
 //ball enters bot
   //identify its color as it enters and assign it a BLUE or RED value
   //if the intakes are running in and a ball arrives at a new ballpos, we can assume it came from the below ballpos
-  //if the intakes are running out and a ball arrives at a new ballpos, we can assume it came from the above balpos
+  //if the intakes are running out and a ball arrives at a new ballpos, we can assume it came from the above ballpos
     //based on those two logic bits, assign a true false and red blues identifier to each pos
     //use this data to govern the ball movements
 

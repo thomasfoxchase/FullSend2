@@ -72,24 +72,24 @@ void chuteControl(void* param) {
 void chuteSmartControl(void* param) {
   std::uint32_t now = pros::millis();
 
-  //INTAKE AND INDEX LOGIC >> Know color system (just telemerty read outs)
+  //INTAKE AND INDEX LOGIC >> Know color system (just telemetry read outs)
   //begin >> no balls in bot, all three sensors read neg on present
   //ball enters bot
     //identify its color as it enters and assign it a BLUE or RED value
     while(true) {
       if (chute_mutex.take(MUTEX_WAIT_SHORT)) {
         if (ballPos2Get()) {
-          if (ballPos2ColorGet() == RED) { //this will be adjusted later to be cusomizable based on match
+          if (ballPos2ColorGet() == RED) { //this will be adjusted later to be customizable based on match
             chuteEject(127);
           }
         } else if (ballPos1Get()) {
-          if (ballPos3Get() == false) { //there are no balls in the chute
-            while(ballPos3Get() == false) {
+          if (!ballPos3Get()) { //there are no balls in the chute
+            while(!ballPos3Get()) {
               chuteIndex(127); //index to ballPos3
             }
             chuteIndex(0);
-          } else if (ballPos3Get() == true) { //there is one ball in the chute
-            while(ballPos2Get() == false) {
+          } else if (ballPos3Get()) { //there is one ball in the chute
+            while(!ballPos2Get()) {
               chuteIndex(127); //index to ballPos2
             }
             chuteIndex(0);
@@ -109,7 +109,7 @@ void chuteSmartControl(void* param) {
     }
 
     //if the intakes are running in and a ball arrives at a new ballpos, we can assume it came from the below ballpos
-    //if the intakes are running out and a ball arrives at a new ballpos, we can assume it came from the above balpos
+    //if the intakes are running out and a ball arrives at a new ballpos, we can assume it came from the above ballpos
       //based on those two logic bits, assign a true false and red blues identifier to each pos
       //use this data to govern the ball movements
 
