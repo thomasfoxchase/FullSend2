@@ -9,6 +9,7 @@ extern "C" {
 extern pros::Motor chute_mtr;
 
 void chuteControlTaskInit();
+
 void chuteMove(int chutePower);
 
 #endif

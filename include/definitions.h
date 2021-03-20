@@ -18,6 +18,7 @@ extern pros::Controller buddy;
 #define RIGHT_BASE_ENCODER_OUTPUT_PORT 'd'
 #define UPPER_LINE_SENSOR_PORT 'b'
 #define LOWER_LINE_SENSOR_PORT 'c'
+#define EJECT_LINE_SENSOR_PORT 'd'
 #define INERTIAL_PORT 21
 #define OPTICAL_SENSOR_PORT 8
 #define SELECTOR_PORT 'a'

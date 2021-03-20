@@ -131,6 +131,7 @@ pros::Mutex ball_tracking_mutex;
 bool ballPos1 = false; //false is no ball present
 bool ballPos2 = false;
 bool ballPos3 = false;
+bool ballLeave = false;
 bool ballPos1Color = RED; //RED == true, BLUE == false
 bool ballPos2Color = RED;
 bool ballPos3Color = RED;
@@ -147,6 +148,7 @@ void chuteGet(void* pointerParam) {
       //Chute Sensor Declarations
       pros::ADILineSensor lower_line_sensor(LOWER_LINE_SENSOR_PORT);
       pros::ADILineSensor upper_line_sensor(UPPER_LINE_SENSOR_PORT);
+      pros::ADILineSensor eject_line_sensor(EJECT_LINE_SENSOR_PORT);
       pros::Optical optical_sensor(OPTICAL_SENSOR_PORT);
 
       // pros::Vision vision_sensor(OPTICAL_SENSOR_PORT);
@@ -182,6 +184,8 @@ void chuteGet(void* pointerParam) {
         ballPos1Color = BLUE;
       }
 
+
+
       if(lower_line_sensor.get_value() < 2000){ //if ball is present
         ballPos1 = true;
       } else {
@@ -192,6 +196,12 @@ void chuteGet(void* pointerParam) {
         ballPos3 = true;
       } else {
         ballPos3 = false;
+      }
+
+      if(eject_line_sensor.get_value() < 2000){ //if ball is present
+          ballLeave = true;
+      } else {
+          ballLeave = false;
       }
 
       if (chuteDirectionGet() && ballPos2) { //if intakeIn
@@ -247,6 +257,10 @@ bool ballPos2Get() {
 
 bool ballPos3Get() {
   return ballPos3;
+}
+
+bool ballLeaveGet() {
+ return ballLeave;
 }
 
 bool ballPos1ColorGet() {
