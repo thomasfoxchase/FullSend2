@@ -181,7 +181,8 @@ void chuteGet(void* pointerParam) {
           colorAvg[i] = optical_sensor.get_hue();
           ballPos3Avg[i] = upper_line_sensor.get_value();
           ballPos2Avg[i] = secondPos_line_sensor.get_value();
-          ballLeaveAvg[i] = eject_sensor.get_value();
+          ballLeaveAvg[i] = secondPos_line_sensor.get_value();
+//          ballLeaveAvg[i] = eject_sensor.get_value();
           pros::delay(20);
       }
 
@@ -202,15 +203,15 @@ void chuteGet(void* pointerParam) {
 
 
       //setter logic
-      if (avgC < 20) { //if red ball
+      if (optical_sensor.get_hue() < 20) { //if red ball
           ballPos2Color = 1;
-      } else if (avgC > 150) { //if blue ball
+      } else if (optical_sensor.get_hue() > 150) { //if blue ball
           ballPos2Color = 2;
       } else {
           ballPos2Color = 0;
       }
 
-      if(avg2 < 2800) {
+      if(avg2 < 2900) {
           ballPos2 = true;
       } else {
           ballPos2 = false;
@@ -222,13 +223,13 @@ void chuteGet(void* pointerParam) {
         ballPos1 = false;
       }
 
-      if(avg3 < 2500){ //if ball is present
+      if(avg3 < 2900){ //if ball is present
         ballPos3 = true;
       } else {
         ballPos3 = false;
       }
-
-      if(avgL < 100 && avgL > 0){ //if ball is present
+      if(avgL < 2900) { //if ball is present
+//      if(avgL < 100 && avgL > 0){ //if ball is present
           ballLeave = true;
       } else {
           ballLeave = false;

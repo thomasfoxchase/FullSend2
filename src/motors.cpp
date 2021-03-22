@@ -14,6 +14,15 @@ pros::Motor left_back_mtr(BACK_LEFT_DRIVE_PORT, REVERSE);
 pros::Motor upper_chute_mtr(UPPER_CHUTE_PORT);
 pros::Motor lower_chute_mtr(LOWER_CHUTE_PORT, REVERSE);
 
+void motorBrake(pros::Motor motor, pros::Motor motor2) {
+    motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    motor2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    pros::delay(20);
+    motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    motor2.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+}
+
+
 
 bool chuteDirectionGet() {
   return lower_chute_mtr.get_direction();

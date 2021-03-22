@@ -7,6 +7,7 @@
 extern "C" {
 
 bool chuteDirectionGet();
+void motorBrake(pros::Motor motor, pros::Motor motor2);
 
 //motor definitions
 extern pros::Motor left_front_mtr;
