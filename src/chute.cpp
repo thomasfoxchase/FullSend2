@@ -5,6 +5,7 @@
 
 pros::Mutex chute_mutex;
 pros::Mutex intake_mutex;
+pros::Mutex ejector_mtrs_mutex;
 
 bool chuteDirection = true;
 
@@ -13,17 +14,17 @@ bool chuteDirection = true;
 void chuteMove(int chutePower) {
   ejector_mtr = chutePower;
   ejector_mtr2 = chutePower;
-  lower_chute_mtr = chutePower;
+  lower_chute_mtr = chutePower*.8;
 }
 
 void chuteIndex(int chutePower) {
-  lower_chute_mtr = chutePower;
+  lower_chute_mtr = chutePower*.8;
 }
 
 void chuteEject(int chutePower) {
   ejector_mtr = -chutePower;
   ejector_mtr2 = -chutePower;
-  lower_chute_mtr = chutePower;
+  lower_chute_mtr = chutePower*.8;
 }
 
 void intakeMove(int sideRollerPower) {
@@ -47,7 +48,8 @@ void chuteControl(void* param) {
     left1 = master.get_digital(DIGITAL_L1);
     left2 = master.get_digital(DIGITAL_L2);
     if (chute_mutex.take(MUTEX_WAIT_SHORT)) {
-      if (left2) { //rollers in
+        std::cout << "im in chuteControl" << std::endl;
+        if (left2) { //rollers in
         chuteEject(127); //eject balls out back
       } else if (left1) {
         intakeMove(FULL_POWER);
@@ -83,10 +85,10 @@ void intakeControl(void* param) {
             } else {
                 intakeMove(0);
             }
+            intake_mutex.give();
         }
-        intake_mutex.give();
+        pros::Task::delay_until(&now, TASK_DELAY_NORMAL);
     }
-    pros::Task::delay_until(&now, TASK_DELAY_NORMAL);
 }
 
 
@@ -110,38 +112,53 @@ void chuteSmartIndexingControl(void* param) {
         left1 = master.get_digital(DIGITAL_L1);
         left2 = master.get_digital(DIGITAL_L2);
         if (chute_mutex.take(MUTEX_WAIT_SHORT)) {
-        if (ballPos2Get()) {
-            if (ballPos2ColorGet() == RED) { //this will be adjusted later to be customizable based on match
-                while (!ballLeaveGet()) {
-                    chuteEject(127); //eject until the ball is seen leaving
-                }
-                chuteEject(0); //turn off motors
+          if (left1) { //shoot balls
+            std::cout << "shoot balls" << std::endl;
+            if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
+                chuteMove(127);
+                ejector_mtrs_mutex.give();
             }
-        } else if (left1) { //shoot balls
-            chuteMove(127);
         } else if (left2) { //for ejecting out bottom if pressed with right 2 or failsafe for misfire balls
-            chuteMove(-127);
+            if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
+                chuteMove(-127);
+                ejector_mtrs_mutex.give();
+            }
         } else if (ballPos1Get()) {
           if (!ballPos3Get()) { //there are no balls in the chute
-            while(!ballPos3Get()) {
+            std::cout << "indexing first ball" << std::endl;
+            while(!ballPos3Get() && ballPos2ColorGet() != 1) {
               chuteIndex(127); //index to ballPos3
+              pros::delay(20);
             }
             chuteIndex(0);
           } else if (ballPos3Get()) { //there is one ball in the chute
-            while(!ballPos2Get()) {
+              std::cout << "indexing second ball" << std::endl;
+              while(!ballPos2Get() && ballPos2ColorGet() != 1) {
               chuteIndex(127); //index to ballPos2
+              pros::delay(20);
             }
             chuteIndex(0);
           } else { //there are two balls already in the robot
+            std::cout << "indexing third ball" << std::endl;
             chuteIndex(127); //index ball into bot slightly
             pros::delay(200);
             chuteIndex(0);
+
           }
+        } else {
+//            std::cout << "do nothing" << std::endl;
+            if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
+                chuteMove(0);
+                chuteEject(0);
+                ejector_mtrs_mutex.give();
+            }
         }
         chute_mutex.give();
       }
       pros::Task::delay_until(&now, TASK_DELAY_NORMAL);
     }
+
+
 
     //if the intakes are running in and a ball arrives at a new ballpos, we can assume it came from the below ballpos
     //if the intakes are running out and a ball arrives at a new ballpos, we can assume it came from the above ballpos
@@ -150,9 +167,29 @@ void chuteSmartIndexingControl(void* param) {
 
 }
 
-
+void ejectControl(void* param) {
+    //manage side rollers
+    std::uint32_t now = pros::millis();
+    while(true) {
+        if (ballPos2ColorGet() == 1) { //if red ball: this will be adjusted later to be customizable based on match
+            if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
+                std::cout << "ejecting red ball" << std::endl;
+                while (!ballLeaveGet()) {
+                    chuteEject(127); //eject until the ball is seen leaving
+                    pros::delay(20);
+                }
+                chuteEject(0); //turn off motors
+//            } else {
+//                std::cout << "the ball was blue" << std::endl;
+                ejector_mtrs_mutex.give();
+            }
+        }
+        pros::Task::delay_until(&now, TASK_DELAY_NORMAL);
+    }
+}
 
 void chuteControlTaskInit() {
-pros::Task chute_task(chuteSmartIndexingControl,(void*)"CHUTE_TASK");
-pros::Task intake_task(intakeControl,(void*)"INTAKE_TASK");
+    pros::Task chute_task(chuteSmartIndexingControl,(void*)"CHUTE_TASK");
+    pros::Task eject_task(ejectControl,(void*)"EJECT_TASK");
+    pros::Task intake_task(intakeControl,(void*)"INTAKE_TASK");
 }

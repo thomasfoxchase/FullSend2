@@ -22,6 +22,9 @@ extern pros::Controller buddy;
 #define INERTIAL_PORT 21
 #define OPTICAL_SENSOR_PORT 8
 #define SELECTOR_PORT 'a'
+#define ULTRA_PING_PORT 'e'
+#define ULTRA_ECHO_PORT 'f'
+
 
 //current values
 #define DEFAULT_CURRENT 2500

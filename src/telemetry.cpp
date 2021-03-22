@@ -133,8 +133,9 @@ bool ballPos2 = false;
 bool ballPos3 = false;
 bool ballLeave = false;
 bool ballPos1Color = RED; //RED == true, BLUE == false
-bool ballPos2Color = RED;
+int ballPos2Color = 0;
 bool ballPos3Color = RED;
+
 
 
 
@@ -148,97 +149,138 @@ void chuteGet(void* pointerParam) {
       //Chute Sensor Declarations
       pros::ADILineSensor lower_line_sensor(LOWER_LINE_SENSOR_PORT);
       pros::ADILineSensor upper_line_sensor(UPPER_LINE_SENSOR_PORT);
-      pros::ADILineSensor eject_line_sensor(EJECT_LINE_SENSOR_PORT);
+      pros::ADILineSensor secondPos_line_sensor(EJECT_LINE_SENSOR_PORT);
+      pros::ADIUltrasonic eject_sensor(ULTRA_PING_PORT, ULTRA_ECHO_PORT);
       pros::Optical optical_sensor(OPTICAL_SENSOR_PORT);
-
-      // pros::Vision vision_sensor(OPTICAL_SENSOR_PORT);
-      // okapi::OpticalSensor optical(OPTICAL_SENSOR_PORT);
-
-      // optical_sensor.disable_gesture();
-      optical_sensor.set_led_pwm(50);
-      //Print Statements
-      pros::lcd::print(1, "Lower Line Sensor: %d", lower_line_sensor.get_value());
-      pros::lcd::print(2, "Upper Line Sensor: %d", upper_line_sensor.get_value());
-      pros::lcd::print(3, "Selector %d", selector.get_value());
-      pros::lcd::print(4, "Optical Value: %f", optical_sensor.get_hue()); //reading out -4194304
-      pros::lcd::print(5, "Optical Light: %d", optical_sensor.get_led_pwm()); //reading out 2147483647
-
-
+      optical_sensor.set_led_pwm(100);
 
       // std::cout << "Lower Line Sensor: " << (lower_line_sensor.get_value())<< std::endl;
       // std::cout << "Upper Line Sensor: " << (upper_line_sensor.get_value())<< "\n" << std::endl;
 
       // printf("%i, %d\n", pros::millis(), upper_line_sensor.get_value());
-
       // printf("%i value: %i\n", pros::millis(), static_cast<int>(upper_line_sensor.get_value()));
+
+      int ballPos1Avg[5];
+      int ballPos2Avg[5];
+      int ballPos3Avg[5];
+      int ballLeaveAvg[5];
+      int colorAvg[5];
+      int total1 = 0;
+      int total2 = 0;
+      int total3 = 0;
+      int totalL = 0;
+      int totalC = 0;
+      int avg1 = 0;
+      int avg2 = 0;
+      int avg3 = 0;
+      int avgL = 0;
+      int avgC = 0;
+
+      for (int i=0; i<5; i++) {
+          ballPos1Avg[i] = lower_line_sensor.get_value();
+          colorAvg[i] = optical_sensor.get_hue();
+          ballPos3Avg[i] = upper_line_sensor.get_value();
+          ballPos2Avg[i] = secondPos_line_sensor.get_value();
+          ballLeaveAvg[i] = eject_sensor.get_value();
+          pros::delay(20);
+      }
+
+      for (int i=0; i<5; i++) {
+          total1 += ballPos1Avg[i];
+          total2 += ballPos2Avg[i];
+          total3 += ballPos3Avg[i];
+          totalL += ballLeaveAvg[i];
+          totalC += colorAvg[i];
+      }
+
+      avg1 = total1/5;
+      avg2 = total2/5;
+      avg3 = total3/5;
+      avgL = totalL/5;
+      avgC = totalC/5;
+
 
 
       //setter logic
-      if(optical_sensor.get_hue() > 300) { //if no ball
-        ballPos2 = false;
-      } else if (optical_sensor.get_hue() > 50 && optical_sensor.get_hue() < 100) { //if red ball
-        ballPos2 = true;
-        ballPos1Color = RED;
-      } else if (optical_sensor.get_hue() > 100 && optical_sensor.get_hue() < 200) { //if blue ball
-        ballPos2 = true;
-        ballPos1Color = BLUE;
+      if (avgC < 20) { //if red ball
+          ballPos2Color = 1;
+      } else if (avgC > 150) { //if blue ball
+          ballPos2Color = 2;
+      } else {
+          ballPos2Color = 0;
       }
 
+      if(avg2 < 2800) {
+          ballPos2 = true;
+      } else {
+          ballPos2 = false;
+      }
 
-
-      if(lower_line_sensor.get_value() < 2000){ //if ball is present
+      if(avg1 < 2900){ //if ball is present
         ballPos1 = true;
       } else {
         ballPos1 = false;
       }
 
-      if(upper_line_sensor.get_value() < 2000){ //if ball is present
+      if(avg3 < 2500){ //if ball is present
         ballPos3 = true;
       } else {
         ballPos3 = false;
       }
 
-      if(eject_line_sensor.get_value() < 2000){ //if ball is present
+      if(avgL < 100 && avgL > 0){ //if ball is present
           ballLeave = true;
       } else {
           ballLeave = false;
       }
 
-      if (chuteDirectionGet() && ballPos2) { //if intakeIn
-        ballPos2Color = ballPos1Color;
-      }
 
-
-//two states
-//if a ball is present, what color is it
-
-
-//INTAKE AND INDEX LOGIC >> Assume color system integrated with the motor movements
-//begin >> no balls in bot, all three sensors read neg on present
-//ball enters bot
-  //identify its color >> index it too the top, or spit it out
-
-//one ball at top, we can assume it is the correct color because it would have been ejected otherwise
-//ball enters bot
-  //identify its color >> index it to middle, or eject it (should the eject logic not come into play until its reached the middle state?)
-
-//two balls in robot, they both will be the correct color if this state has been reached
-//ball enters bot
-  //identify its color?
-  //do nothing with it and just index it to the next ready position?
+      pros::lcd::print(0, "Position 1: %d", avg1);
+      pros::lcd::print(1, "Position 2: %d", ballPos2);
+      pros::lcd::print(2, "Position 3: %d", ballPos3);
+      pros::lcd::print(3, "Color: %d", ballPos2Color);
+      pros::lcd::print(4, "Eject: %d", ballLeave);
+//      pros::lcd::print(5, "Eject: %d", eject_sensor.get_value());
+//      pros::lcd::print(6, "Selector %d", selector.get_value());
+      pros::lcd::print(5, "Color Actual: %d", optical_sensor.get_hue());
 
 
 
+//    if (chuteDirectionGet() && ballPos2) { //if intakeIn
+//      ballPos2Color = ballPos1Color;
+//    }
 
 
-//INTAKE ANS INDEX LOGIC >> Know color system (just telemetry read outs)
-//begin >> no balls in bot, all three sensors read neg on present
-//ball enters bot
-  //identify its color as it enters and assign it a BLUE or RED value
-  //if the intakes are running in and a ball arrives at a new ballpos, we can assume it came from the below ballpos
-  //if the intakes are running out and a ball arrives at a new ballpos, we can assume it came from the above ballpos
-    //based on those two logic bits, assign a true false and red blues identifier to each pos
-    //use this data to govern the ball movements
+    //two states
+    //if a ball is present, what color is it
+
+
+    //INTAKE AND INDEX LOGIC >> Assume color system integrated with the motor movements
+    //begin >> no balls in bot, all three sensors read neg on present
+    //ball enters bot
+      //identify its color >> index it too the top, or spit it out
+
+    //one ball at top, we can assume it is the correct color because it would have been ejected otherwise
+    //ball enters bot
+      //identify its color >> index it to middle, or eject it (should the eject logic not come into play until its reached the middle state?)
+
+    //two balls in robot, they both will be the correct color if this state has been reached
+    //ball enters bot
+      //identify its color?
+      //do nothing with it and just index it to the next ready position?
+
+
+
+
+
+    //INTAKE ANS INDEX LOGIC >> Know color system (just telemetry read outs)
+    //begin >> no balls in bot, all three sensors read neg on present
+    //ball enters bot
+      //identify its color as it enters and assign it a BLUE or RED value
+      //if the intakes are running in and a ball arrives at a new ballpos, we can assume it came from the below ballpos
+      //if the intakes are running out and a ball arrives at a new ballpos, we can assume it came from the above ballpos
+        //based on those two logic bits, assign a true false and red blues identifier to each pos
+        //use this data to govern the ball movements
 
 
       ball_tracking_mutex.give();
@@ -267,7 +309,7 @@ bool ballPos1ColorGet() {
   return ballPos1Color;
 }
 
-bool ballPos2ColorGet() {
+int ballPos2ColorGet() {
   return ballPos2Color;
 }
 

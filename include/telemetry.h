@@ -34,7 +34,7 @@ bool ballPos2Get();
 bool ballPos3Get();
 bool ballLeaveGet();
 bool ballPos1ColorGet();
-bool ballPos2ColorGet();
+int ballPos2ColorGet();
 bool ballPos3ColorGet();
 
 //debug getters
