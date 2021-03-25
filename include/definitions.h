@@ -40,6 +40,8 @@ extern pros::Controller buddy;
 #define OUT false
 #define RED true
 #define BLUE false
+#define EJECT_RED true
+#define EJECT_BLUE false
 #define KEEPME true
 #define EJECTME false
 

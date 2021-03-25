@@ -77,7 +77,7 @@ void intakeControl(void* param) {
     std::uint32_t now = pros::millis();
     while(true) {
         left1 = master.get_digital(DIGITAL_L1);
-        left2 = master.get_digital(DIGITAL_L1);
+        left2 = master.get_digital(DIGITAL_L2);
         if (intake_mutex.take(MUTEX_WAIT_SHORT)) {
             if (left1) {
                 intakeMove(127);
@@ -202,6 +202,35 @@ void ejectControl(void* param) {
     }
 }
 
+void lessSmartEjectCycle(){
+    std::cout << "eject ball" << std::endl;
+    int start_time = pros::millis();
+    int elapsed_time = 0;
+    double scalar = 1;
+    if(ballPos3Get()) {
+        chuteEject(-70,127);
+        pros::delay(200);
+    }
+//                if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
+    while (!ballLeaveGet() && elapsed_time < 1000) {
+        std::cout << elapsed_time << std::endl;
+        if (ballPos1Get()) {
+            scalar = 0.5;
+        } else {
+            scalar = 1;
+        }
+        chuteEject(127, 127 * scalar); //eject until the ball is seen leaving
+        pros::delay(20);
+        elapsed_time = pros::millis() - start_time;
+    }
+    chuteEject(-50,0);
+    pros::delay(20);
+    chuteEject(0,0);
+
+//                    ejector_mtrs_mutex.give();
+//                }
+}
+
 void chuteLessSmartControl(void* param) {
     std::uint32_t now = pros::millis();
     while(true) {
@@ -210,44 +239,29 @@ void chuteLessSmartControl(void* param) {
         right1 = master.get_digital(DIGITAL_R1);
         right2 = master.get_digital(DIGITAL_R2);
         if (chute_mutex.take(MUTEX_WAIT_SHORT)) {
-            if (ballPos2ColorGet() == 1) { //if red ball: this will be adjusted later to be customizable based on match
-                std::cout << "eject ball" << std::endl;
-                int start_time = pros::millis();
-                int elapsed_time = 0;
-                double scalar = 1;
-//                if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
-                    while (!ballLeaveGet() && elapsed_time < 1000) {
-                        std::cout << elapsed_time << std::endl;
-                        if (ballPos1Get()) {
-                            scalar = 0.5;
-                        } else {
-                            scalar = 1;
-                        }
-                        chuteEject(127, 127 * scalar); //eject until the ball is seen leaving
-                        pros::delay(20);
-                        elapsed_time = pros::millis() - start_time;
-                    }
-                    chuteEject(-50,0);
-                    pros::delay(20);
-                    chuteEject(0,0);
-
-//                    ejector_mtrs_mutex.give();
-//                }
-            } else if (left1) { //index balls
+            if (ballPos2ColorGet() == 1 && colorModeGet() == EJECT_RED) { //eject red balls
+                std::cout << "eject red" << std::endl;
+                lessSmartEjectCycle();
+            } else if (ballPos2ColorGet() == 2 && colorModeGet() == EJECT_BLUE) { //eject blue balls
+                std::cout << "eject blue" << std::endl;
+                lessSmartEjectCycle();
+            } else if (left1 && !right1) { //index balls
                 std::cout << "index balls" << std::endl;
                 chuteIndex(127);
             } else if (right1) { //shoot balls
                 std::cout << "shoot balls" << std::endl;
 //                if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
-                    chuteMove(127);
+                chuteMove(127);
 //                    ejector_mtrs_mutex.give();
 //                }
-            } else if (left2) { //for ejecting out bottom if pressed with right 2 or failsafe for misfire balls
-//                if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
-                    std::cout << "spit balls" << std::endl;
-                    chuteMove(-127);
-//                    ejector_mtrs_mutex.give();
-//                }
+            } else if (right2) {
+                chuteMove(-127);
+//            } else if (left2) { //for ejecting out bottom if pressed with right 2 or failsafe for misfire balls
+////                if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
+//                    std::cout << "spit balls" << std::endl;
+//                    chuteMove(-127);
+////                    ejector_mtrs_mutex.give();
+////                }
             } else {
 //            std::cout << "do nothing" << std::endl;
 //                if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {

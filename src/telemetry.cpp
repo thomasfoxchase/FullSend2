@@ -135,6 +135,9 @@ bool ballLeave = false;
 bool ballPos1Color = RED; //RED == true, BLUE == false
 int ballPos2Color = 0;
 bool ballPos3Color = RED;
+bool colorMode = RED;
+int a;
+
 
 
 
@@ -153,6 +156,18 @@ void chuteGet(void* pointerParam) {
       pros::ADIUltrasonic eject_sensor(ULTRA_PING_PORT, ULTRA_ECHO_PORT);
       pros::Optical optical_sensor(OPTICAL_SENSOR_PORT);
       optical_sensor.set_led_pwm(100);
+
+      a = master.get_digital_new_press(DIGITAL_A);
+
+      if (a) {
+          if (colorMode == EJECT_RED) {
+              colorMode = EJECT_BLUE;
+          } else {
+              colorMode = EJECT_RED;
+          }
+      }
+
+
 
       // std::cout << "Lower Line Sensor: " << (lower_line_sensor.get_value())<< std::endl;
       // std::cout << "Upper Line Sensor: " << (upper_line_sensor.get_value())<< "\n" << std::endl;
@@ -243,7 +258,14 @@ void chuteGet(void* pointerParam) {
       pros::lcd::print(4, "Eject: %d", ballLeave);
 //      pros::lcd::print(5, "Eject: %d", eject_sensor.get_value());
 //      pros::lcd::print(6, "Selector %d", selector.get_value());
-      pros::lcd::print(5, "Color Actual: %d", optical_sensor.get_hue());
+
+        if (colorMode == EJECT_RED) {
+            pros::lcd::print(5, "EJECTING RED");
+//            master.set_text(pros::E_CONTROLLER_MASTER, 0, 0, "EJECTING RED");
+        } else {
+            pros::lcd::print(5, "EJECTING BLUE");
+//            master.set_text(pros::E_CONTROLLER_MASTER, 0, 0, "EJECTING BLUE");
+        }
 
 
 
@@ -318,6 +340,9 @@ bool ballPos3ColorGet() {
   return ballPos3Color;
 }
 
+bool colorModeGet() {
+    return colorMode;
+}
 
 
 // double absGyroValue;

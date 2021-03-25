@@ -36,6 +36,7 @@ bool ballLeaveGet();
 bool ballPos1ColorGet();
 int ballPos2ColorGet();
 bool ballPos3ColorGet();
+bool colorModeGet();
 
 //debug getters
 double encoderGet(pros::ADIEncoder encoder);
