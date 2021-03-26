@@ -20,6 +20,7 @@ extern pros::Motor right_front_mtr;
 // extern pros::Controller master(pros::E_CONTROLLER_MASTER);
 
 void baseControlTaskInit();
+void baseTester();
 
 
 #endif

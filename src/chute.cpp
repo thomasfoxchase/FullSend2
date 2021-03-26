@@ -15,6 +15,7 @@ void chuteMove(int chutePower) {
   ejector_mtr = chutePower;
   ejector_mtr2 = chutePower;
   lower_chute_mtr = (double) chutePower*.7;
+  flywheel_mtr = chutePower;
 }
 
 void chuteIndex(int chutePower) {
@@ -207,10 +208,10 @@ void lessSmartEjectCycle(){
     int start_time = pros::millis();
     int elapsed_time = 0;
     double scalar = 1;
-    if(ballPos3Get()) {
-        chuteEject(-70,127);
-        pros::delay(200);
-    }
+//    if(ballPos3Get()) {
+//        chuteEject(-70,127);
+//        pros::delay(200);
+//    }
 //                if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
     while (!ballLeaveGet() && elapsed_time < 1000) {
         std::cout << elapsed_time << std::endl;

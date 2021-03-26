@@ -74,6 +74,11 @@ double encoderGet(pros::ADIEncoder encoder) {
   return encoderValue;
 }
 
+double motorEncoderGet(pros::Motor fuckImBroken) {
+    encoderValue = fuckImBroken.get_position();
+    return encoderValue;
+}
+
 //returns the average of all 6 base encoders as a double
 double getBaseEncodersAvg() {
   return baseEncoderAvg;

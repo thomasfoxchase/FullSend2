@@ -39,6 +39,7 @@ void baseControl(void* param) { //tank control
     if (base_mutex.take(MUTEX_WAIT_SHORT)) {
       int left = master.get_analog(ANALOG_LEFT_Y); //left analog stick
       int right = master.get_analog(ANALOG_RIGHT_Y); //right analog stick
+      int b = master.get_digital(DIGITAL_B);
 
       left_back_mtr = left;
       right_back_mtr = right;
@@ -46,6 +47,10 @@ void baseControl(void* param) { //tank control
       right_front_mtr = right;
       left_middle_mtr = left;
       right_middle_mtr = right;
+
+      if (b) {
+          baseTester();
+      }
 
 			base_mutex.give();
     }
@@ -78,6 +83,23 @@ void baseTurn(double power) { //left is positive
     right_middle_mtr = power;
 }
 
+void baseTester() {
+    std::cout << "begin 10 sec test" << std::endl;
+    int startTime = pros::millis();
+    int elapsedTime = 0;
+    while(elapsedTime < 10000) {
+        baseMove(127,127);
+        pros::delay(20);
+        elapsedTime = pros::millis(); - startTime;
+    }
+    std::cout << "left_front: " << left_front_mtr.get_position() << std::endl;
+    std::cout << "left_middle: " << left_middle_mtr.get_position() << std::endl;
+    std::cout << "left_back: " << left_back_mtr.get_position() << std::endl;
+    std::cout << "right_front: " << right_front_mtr.get_position() << std::endl;
+    std::cout << "right_middle: " << right_middle_mtr.get_position() << std::endl;
+    std::cout << "right_back: " << right_back_mtr.get_position() << std::endl;
+    baseMove(0,0);
+}
 
 //BASE AUTON MOVEMENT FUNCTIONS
 
@@ -92,9 +114,9 @@ void baseTurn(double power) { //left is positive
      double previousError = 0.00;
      double totalError = 0.00;
      const double INTEGRAL_LIMIT = 10.0;
- 		double kP = 0.500; //0.50 //KU = 4.00 //TU = 0.93
- 		double kI = 0.030; //0.03
- 		double kD = 0.740; //0.74
+ 		double kP = 0.290; //0.50 //KU = 4.00 //TU = 0.93
+ 		double kI = 0.000; //0.03
+ 		double kD = 0.380; //0.74
 
      //While loop ensures that the robot will keep
      //turning until it reaches the endpoint
@@ -114,8 +136,11 @@ void baseTurn(double power) { //left is positive
          double i = kI * totalError;
          double d = kD * (currentError - previousError);
 
-       baseTurn(p+i+d);
-
+         if (p+i+d < 15) {
+             baseTurn(15);
+         } else {
+             baseTurn(p + i + d);
+         }
          currentValue = getRotation();
          previousError = currentError;
          currentError = ENDPOINT - currentValue;
@@ -134,10 +159,10 @@ void basePIDMove(double distance) { //distance in feet
     double previousError = 0.00;
     double totalError = 0.00;
     const double INTEGRAL_LIMIT = 10.0;
-    double kP = 0.500; //0.50 //KU = 4.00 //TU = 0.93
-    double kI = 0.030; //0.03
-    double kD = 0.740; //0.74
-    double kS = 0.2;
+    double kP = 0.025; //0.50 //KU = 4.00 //TU = 0.93
+    double kI = 0.000; //0.03
+    double kD = 0.000; //0.74
+    double kS = 0.14;
 
     //While loop ensures that the robot will keep
     //turning until it reaches the endpoint
@@ -158,7 +183,11 @@ void basePIDMove(double distance) { //distance in feet
         double d = kD * (currentError - previousError); //derivative speed control
         double s = kS * getRotation(); //steering correction
 
-        baseMove(p+i+d-s, p+i+d+s);
+        if (p+i+d < 15) {
+            baseMove(15, 15);
+        } else {
+            baseMove(p+i+d-s, p+i+d+s);
+        }
 
         currentValue = getDriveMotorsEncoderAvg();
         previousError = currentError;
@@ -167,7 +196,6 @@ void basePIDMove(double distance) { //distance in feet
         pros::delay(20);
     }
 }
-
 
 
 // Direction Correction

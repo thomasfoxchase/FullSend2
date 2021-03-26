@@ -20,6 +20,7 @@ extern pros::ADIPort selector;
 
 //tasks
 void telemetryGetTaskInit();
+void motorTester();
 
 //auton getters
 double getBaseEncodersAvg();
@@ -27,6 +28,8 @@ double getBaseEncoderRotation();
 double getDriveMotorsEncoderAvg();
 double getDriveMotorsEncoderRotation();
 double getRotation();
+double motorEncoderGet(pros::Motor fuckImBroken);
+
 
 //chute control getters
 bool ballPos1Get();

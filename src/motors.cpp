@@ -35,3 +35,6 @@ pros::Motor right_intake_mtr(RIGHT_INTAKE_PORT, REVERSE);
 //ejector
 pros::Motor ejector_mtr(EJECTOR_PORT, REVERSE);
 pros::Motor ejector_mtr2(EJECTOR2_PORT);
+
+//flywheel
+pros::Motor flywheel_mtr(FLYWHEEL_PORT);
