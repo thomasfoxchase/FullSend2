@@ -29,6 +29,7 @@ double getDriveMotorsEncoderAvg();
 double getDriveMotorsEncoderRotation();
 double getRotation();
 double motorEncoderGet(pros::Motor fuckImBroken);
+void colorModeSet(bool color);
 
 
 //chute control getters
@@ -40,6 +41,8 @@ bool ballPos1ColorGet();
 int ballPos2ColorGet();
 bool ballPos3ColorGet();
 bool colorModeGet();
+void beginTimer(bool yes);
+int timeGet();
 
 //debug getters
 double encoderGet(pros::ADIEncoder encoder);

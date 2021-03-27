@@ -1,10 +1,24 @@
-//
-// Created by thoma on 3/25/2021.
-//
+#ifndef _AUTON_H_
+#define _AUTON_H_
 
-#ifndef FULLSEND_AUTON_H
-#define FULLSEND_AUTON_H
+#include "main.h"
 
+#ifdef __cplusplus
+extern "C" {
 
+void blueAuton();
+void blueAuton2();
 
-#endif //FULLSEND_AUTON_H
+#endif
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+/**
+ * You can add C++-only headers here
+ */
+
+#endif
+
+#endif  // _AUTON_H_

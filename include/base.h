@@ -21,6 +21,9 @@ extern pros::Motor right_front_mtr;
 
 void baseControlTaskInit();
 void baseTester();
+void autoFunctionTester(int current);
+void basePIDTurn(double rotation, int timeOut);
+void basePIDMove(double distance, int timeOut);
 
 
 #endif

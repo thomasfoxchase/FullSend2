@@ -45,7 +45,7 @@ void baseEncodersGet(void* param) {
                               left_back_mtr.get_position() +
                               right_front_mtr.get_position() +
                               right_middle_mtr.get_position() +
-                              right_back_mtr.get_position())/588/6;
+                          right_back_mtr.get_position())/584/6;
       // printf("%i, %6.1f\n", pros::millis(), driveMotorEncoderAvg);
       // pros::lcd::print(4, "Movement Feet: %6.1f", driveMotorEncoderAvg);
 
@@ -142,9 +142,6 @@ int ballPos2Color = 0;
 bool ballPos3Color = RED;
 bool colorMode = RED;
 int a;
-
-
-
 
 
 //Set all Chute data to booleans
@@ -317,6 +314,33 @@ void chuteGet(void* pointerParam) {
   }
 }
 
+
+
+int time;
+bool bigBang;
+
+void beginTimer(bool yes) {
+    bigBang = yes;
+}
+
+void timer(void* param) {
+    std::uint32_t now = pros::millis();
+    int startTime = pros::millis();
+    time = 0;
+    while (true) {
+        if (bigBang) {
+            time = 0;
+            bigBang = false;
+        }
+        time = pros::millis() - startTime;
+        pros::Task::delay_until(&now, TASK_DELAY_NORMAL);
+    }
+}
+
+int timeGet() {
+    return time;
+}
+
 bool ballPos1Get() {
   return ballPos1;
 }
@@ -345,9 +369,19 @@ bool ballPos3ColorGet() {
   return ballPos3Color;
 }
 
+void colorModeSet(bool color) {
+    if (BLUE) {
+        colorMode = BLUE;
+    } else {
+        colorMode = RED;
+    }
+}
+
 bool colorModeGet() {
     return colorMode;
 }
+
+
 
 
 // double absGyroValue;
@@ -402,7 +436,7 @@ void telemetryGetTaskInit() {
   pros::Task encoders_task(baseEncodersGet,(void*)"BASE_TASK");
   pros::Task ball_tracking_task(chuteGet,(void*)"BALL_TRACKING_TASK");
   pros::Task inertial_task(inertialGet,(void*)"INERTIAL_TASK");
-
+  pros::Task timer_task(timer,(void*)"TIMER_TASK");
 }
 
 // double gyroGetAbsolute() {

@@ -9,6 +9,20 @@ extern "C" {
 extern pros::Motor chute_mtr;
 
 void chuteControlTaskInit();
+void intakeMove(int sideRollerPower);
+void chuteEject(int chutePower, int indexPower);
+void chuteIndex(int chutePower);
+void chuteMove(int chutePower);
+void lessSmartEjectCycle();
+void autoShootUntil(bool color, int time_limit);
+void setEjectIt(bool yes);
+void chuteAutoTaskInit();
+void autoShootOneBall();
+void setShootCycle(bool shootme);
+void outdexFix();
+
+
+
 
 void chuteMove(int chutePower);
 
