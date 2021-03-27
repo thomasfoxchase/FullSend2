@@ -23,7 +23,10 @@ void baseControlTaskInit();
 void baseTester();
 void autoFunctionTester(int current);
 void basePIDTurn(double rotation, int timeOut);
+void basePIDTurnAbsolute(double heading, int timeOut);
 void basePIDMove(double distance, int timeOut);
+void basePIDMoveHeading(double distance, double heading, double headingScale, int timeOut);
+
 
 
 #endif

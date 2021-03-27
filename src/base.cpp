@@ -210,6 +210,106 @@ void baseTester() {
      baseTurn(0);
  }
 
+void basePIDTurnAbsolute(double heading, int timeOut) {
+
+    int start_time = pros::millis();
+    int elapsed_time = 0;
+    /*ENDPOINT defines the final value which the inertial
+     sensor should report after it moves the desired distance*/
+
+    const double ENDPOINT = heading;
+    double currentValue = getRotation();
+    double rotation = ENDPOINT - currentValue;
+    double currentError = ENDPOINT - currentValue;
+    double previousError = ENDPOINT - currentValue;
+    double totalError = 0.00;
+    double initialSlew = 0;
+    const double INTEGRAL_LIMIT = 20.0;
+    double kP; //0.50 //KU = 4.00 //TU = 0.93
+    double kI; //0.03
+    double kD; //0.74
+    if (fabs(rotation) <= 45) { //small turns
+        kP = 1.3; //0.50 //KU = 4.00 //TU = 0.93
+        kI = 0.09; //0.03
+        kD = 3; //0.74
+    } else if (fabs(rotation) > 90) { //large turns
+        kP = 1; //0.50 //KU = 4.00 //TU = 0.93
+        kI = 0.06; //0.03
+        kD = 5; //0.74
+    } else { //medium turns
+        kP = 1; //0.50 //KU = 4.00 //TU = 0.93
+        kI = 0.07; //0.03
+        kD = 5; //0.74
+    }
+
+
+    double kIS = 1;
+
+    //While loop ensures that the robot will keep
+    //turning until it reaches the endpoint
+    while(fabs(currentError) > 0.50 && elapsed_time < timeOut) {
+
+        if(fabs(currentError - ENDPOINT) < 30) {
+//            initialSlew = -(1 - (ENDPOINT - currentError)/**(distance*0.5)*/);
+            if (fabs(rotation) < 30) {
+                initialSlew = 1.2;
+//                 std::cout << "slew rate sml raw: " << 1;
+                std::cout << "endpoint: " << ENDPOINT << "currentError: " << currentError;
+//                 initialSlew = std::min((ENDPOINT - currentError)/30 + 0.8, 1.0); //multiply scalar from 0.6 >> 1 for small movements
+            } else if (fabs(rotation) > 90) {
+                std::cout << "endpoint: " << ENDPOINT << "currentError: " << currentError;
+                initialSlew = std::min(fabs((ENDPOINT - currentError))/30 + 0.4, 1.0); //multiply scalar from 0.2 >> 1 for large movements
+            } else {
+//                 std::cout << "slew rate med raw: " << fabs(ENDPOINT - currentError);
+                std::cout << "endpoint: " << ENDPOINT << "currentError: " << currentError;
+                initialSlew = std::min(fabs((ENDPOINT - currentError))/30 + 0.7, 1.0); //multiply scalar from 0.3 >> 1 for medium movements
+            }
+        } else {
+//            initialSlew = 0;
+            initialSlew = 1;
+            std::cout << " ELSE NAHHHH ";
+        }
+
+//         if(fabs(currentError - ENDPOINT) < 20) {
+//             initialSlew = -(20 - (ENDPOINT - currentError))/**(rotation*0.2)*/;
+//         } else {
+//             initialSlew = 0;
+//         }
+
+        if(fabs(currentError) < INTEGRAL_LIMIT) {
+            totalError += currentError;
+        } else {
+            totalError = 0;
+        }
+
+        if(previousError * currentError <= 0) { //integral is not meant to slow the turn, it should wither do nothing or speed it up
+            totalError = 0;
+        }
+
+        double p = std::min(kP * currentError, 90.0);
+        double i = kI * totalError;
+        double d = kD * (currentError - previousError);
+        double is = kIS * initialSlew; //proportional initial speed control
+
+        std::cout << "p: " << p;
+        std::cout << " i: " << i;
+        std::cout << " d: " << d;
+        std::cout << " is: " << is <<std::endl;
+
+//         if (p+i+d < 15) {
+//             baseTurn(15);
+//         } else {
+        baseTurn((p + i + d)*is);
+//         }
+        currentValue = getRotation();
+        previousError = currentError;
+        currentError = ENDPOINT - currentValue;
+        elapsed_time = pros::millis() - start_time;
+        pros::delay(20);
+    }
+    baseTurn(0);
+}
+
 void basePIDMove(double distance, int timeOut) { //distance in feet
     //ENDPOINT defines the final value which the encoders should
     //report after it moves the desired distance
@@ -307,6 +407,98 @@ void basePIDMove(double distance, int timeOut) { //distance in feet
 void autoFunctionTester (int current) {
     std::cout << "auto tester" << std::endl;
     basePIDTurn(current, 2000);
+}
+
+void basePIDMoveHeading(double distance, double heading, double headingScale, int timeOut) { //distance in feet
+    //ENDPOINT defines the final value which the encoders should
+    //report after it moves the desired distance
+    int start_time = pros::millis();
+    int elapsed_time = 0;
+    tareBase();
+    const double ENDPOINT = distance; //drive motor encoders are tared to 0 so we don't need an offset
+    double currentValue = getDriveMotorsEncoderAvg();
+    double currentError = ENDPOINT - currentValue;
+    double previousError = ENDPOINT - currentValue;
+    double totalError = 0.00;
+    double steeringError = 0;
+    double initialSlew = 0;
+    const double INTEGRAL_LIMIT = 1.5;
+    double kP; //0.50 //KU = 4.00 //TU = 0.93
+    double kI; //0.03
+    double kD; //0.74
+    double kS = headingScale; //0.2 is reasonable
+    double kIS = 1; //60
+    if (fabs(distance) >= 2) { //large movements
+        kP = 30; //0.50 //KU = 4.00 //TU = 0.93
+        kI = 0.5; //0.03
+        kD = 90; //0.74
+    } else  { //tiny movements
+        kP = 50; //0.50 //KU = 4.00 //TU = 0.93
+        kI = 0.5; //0.03
+        kD = 90; //0.74
+    }
+
+
+
+    //While loop ensures that the robot will keep
+    //turning until it reaches the endpoint
+    while(fabs(currentError) > 0.1 && elapsed_time < timeOut) {
+
+        if(fabs(currentError - ENDPOINT) < 1) {
+//            initialSlew = -(1 - (ENDPOINT - currentError)/**(distance*0.5)*/);
+            if (fabs(distance) < 3) {
+                initialSlew = std::min(fabs(ENDPOINT - currentError) + 0.6, 1.0); //multiply scalar from 0.6 >> 1 for small movements
+            } else if (fabs(distance) > 5) {
+                initialSlew = std::min(fabs(ENDPOINT - currentError) + 0.2, 1.0); //multiply scalar from 0.2 >> 1 for large movements
+            } else {
+                initialSlew = std::min(fabs(ENDPOINT - currentError) + 0.3, 1.0); //multiply scalar from 0.3 >> 1 for medium movements
+            }
+        } else {
+//            initialSlew = 0;
+            initialSlew = 1;
+        }
+
+        if(fabs(currentError) < INTEGRAL_LIMIT) {
+            totalError += currentError;
+        } else {
+            totalError = 0;
+        }
+        //actual pid value and multiply by .5 while in first foot of movement
+        //percent of distance of first foot
+        if(previousError * currentError <= 0) { //integral is not meant to slow the movement, it should wither do nothing or speed it up
+            totalError = 0;
+        }
+
+        double p = kP * currentError; //proportional speed control
+        double i = kI * totalError; //integral speed control
+        double d = kD * (currentError - previousError); //derivative speed control
+        double s = kS * steeringError; //steering correction
+        double is = kIS * initialSlew; //proportional initial speed control
+
+        std::cout << "p: " << p;
+        std::cout << " i: " << i;
+        std::cout << " d: " << d;
+        std::cout << " s: " << s;
+        std::cout << " is: " << is <<std::endl;
+
+        if (fabs(p+i+d) < 15) {
+            if (p+i+d > 0) {
+                baseMove(15, 15);
+            } else {
+                baseMove(-15, -15);
+            }
+        } else {
+            baseMove(((p+i+d)*is)-s, ((p+i+d)*is)+s);
+        }
+
+        currentValue = getDriveMotorsEncoderAvg();
+        previousError = currentError;
+        currentError = ENDPOINT - currentValue;
+        steeringError = heading - getRotation();
+        elapsed_time = pros::millis() - start_time;
+        pros::delay(20);
+    }
+    baseMove(0,0);
 }
 
 
