@@ -43,11 +43,11 @@ extern pros::Motor flywheel_mtr;
 #define RIGHT_INTAKE_PORT 9
 
   //Ejector
-#define EJECTOR_PORT 5
-#define EJECTOR2_PORT 2
+#define EJECTOR_PORT 4
+#define EJECTOR2_PORT 12
 
 //flywheel
-#define FLYWHEEL_PORT 4
+#define FLYWHEEL_PORT 3
 
 
 

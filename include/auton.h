@@ -9,6 +9,8 @@ extern "C" {
 void blueAuton();
 void blueAuton2();
 void blueAuton3();
+void blueAuton4();
+void redAuton();
 
 
 #endif

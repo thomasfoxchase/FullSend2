@@ -4,6 +4,7 @@
 #include "chute.h"
 #include "definitions.h"
 #include "auton.h"
+#include "motors.h"
 
 
 
@@ -207,49 +208,73 @@ void blueAuton4() {
     tareInertial();
     beginTimer(true);
     colorModeSet(BLUE);
+    setEjectIt(false);
+
+    chuteMoveOut(127); //deploy
+    pros::delay(200);
+    chuteMoveOut(0);
+
     intakeMove(127);
     chuteIndex(90);
     basePIDMoveHeading(-1.25, 0, 0.2, 5000); //pick up first ball
     basePIDTurnAbsolute(42, 5000); //turn to goal
-    basePIDMoveHeading(2.0, 42, 0.2, 5000); //pick up first ball
+    basePIDMoveHeading(3.0, 42, 0.2, 1500); //pick up first ball
 //    pros::delay(500);
     chuteIndex(0);
-    basePIDMoveHeading(-0.5, 42, 0.2, 500); //pick up first ball
-    basePIDMoveHeading(0.5, 42, 0.2, 500); //pick up first ball
+//    basePIDMoveHeading(-1, 42, 0.2, 400); //pick up first ball
+//    basePIDMoveHeading(1, 42, 0.2, 400); //pick up first ball
+    outdexFix();
     autoShootOneBall();
-    intakeMove(0);
-    chuteIndex(50);
+    intakeMove(10);
+    chuteIndex(127);
 ////autoShootUntil(BLUE, 2000);
-    basePIDMoveHeading(-2.2, 42, 0.2, 5000);
-    intakeMove(127);
-    basePIDTurnAbsolute(135, 5000);
-    setEjectIt(true);
-    intakeMove(-70);
-    basePIDMoveHeading(2.2, 135, 0.2, 2000); //drive into second goal
-    intakeMove(127); //intkae balls
+
+    basePIDMoveHeading(-1, 42, 0.2, 5000);
+    intakeMove(-127);
+    pros::delay(500);
+    basePIDTurnAbsolute(142, 5000);
+    intakeMove(0);
+    basePIDMoveHeading(1.7, 142, 0.2, 2000);
+    basePIDTurnAbsolute(172, 5000);
+    basePIDMoveHeading(3, 162, 0.2, 1000);
+    basePIDMove(-1, 800);
+    basePIDMove(3, 800);
+    basePIDMove(-1, 800);
+    basePIDMove(3, 800);
+    basePIDTurn(-30, 1000);
+
+
+//    basePIDMoveHeading(-2.2, 42, 0.2, 5000);
+//    intakeMove(-127);
+//    basePIDTurnAbsolute(137, 5000);
+//    intakeMove(127);
+//    setEjectIt(true);
+////    intakeMove(-70);
+//    basePIDMoveHeading(2.8, 137, 0.2, 2000); //drive into second goal
+////    intakeMove(127); //intkae balls
 
     outdexFix();
     autoShootOneBall();
-    intakeMove(0); //intkae balls
-    chuteIndex(50); //eject red
+    intakeMove(0);
+    chuteIndex(90);
 
-    basePIDMoveHeading(-2, 160, 0.2, 5000);
-    setEjectIt(false);
+    basePIDMoveHeading(-2, 137, 0.2, 5000);
+//    setEjectIt(false);
     basePIDTurnAbsolute(270, 5000);
 //    basePIDMoveHeading(-4, 270, 0.2, 2000);
 //    tareInertial();
-    basePIDMoveHeading(4, 270, 0.2, 3000);
+    basePIDMoveHeading(3.7, 270, 0.2, 3000);
     basePIDTurnAbsolute(180, 5000);
-    setEjectIt(true);
-    chuteIndex(50);
+//    setEjectIt(true);
+    chuteIndex(90);
     intakeMove(127);
-    basePIDMoveHeading(2, 180, 0.2, 2000);
+    basePIDMoveHeading(2.7, 180, 0.2, 2000);
     chuteIndex(0);
     intakeMove(0);
     autoShootOneBall();
     pros::delay(1000);
     autoShootOneBall();
-    setEjectIt(false);
+//    setEjectIt(false);
 //    while (true) {
 //
 //        if(timeGet() > 4400) {
@@ -262,6 +287,8 @@ void blueAuton4() {
 
 void redAuton() {
     colorModeSet(RED);
+    outdexFix();
+    autoShootOneBall();
 
 }
 

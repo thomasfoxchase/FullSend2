@@ -65,9 +65,10 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-//    chuteAutoTaskInit();
+    chuteAutoTaskInit();
     std::cout << "in auto" << std::endl;
-    blueAuton3();
+    blueAuton4();
+//    redAuton();
 }
 /**
  * Runs the operator control code. This function will be started in its own task

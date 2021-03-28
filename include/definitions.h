@@ -21,6 +21,7 @@ extern pros::Controller buddy;
 #define EJECT_LINE_SENSOR_PORT 'd'
 #define INERTIAL_PORT 21
 #define OPTICAL_SENSOR_PORT 8
+#define OPTICAL_HIGH_SENSOR_PORT 2
 #define SELECTOR_PORT 'a'
 #define ULTRA_PING_PORT 'e'
 #define ULTRA_ECHO_PORT 'f'
