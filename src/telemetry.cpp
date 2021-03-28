@@ -124,6 +124,11 @@ void inertialGet(void* param) {
   }
 }
 
+void tareInertial() {
+    inertial.tare_rotation();
+    pros::delay(300);
+}
+
 double getRotation() {
   return inertialRotation;
 }
@@ -137,6 +142,7 @@ bool ballPos1 = false; //false is no ball present
 bool ballPos2 = false;
 bool ballPos3 = false;
 bool ballLeave = false;
+bool ballShoot = false;
 bool ballPos1Color = RED; //RED == true, BLUE == false
 int ballPos2Color = 0;
 bool ballPos3Color = RED;
@@ -157,7 +163,10 @@ void chuteGet(void* pointerParam) {
       pros::ADILineSensor secondPos_line_sensor(EJECT_LINE_SENSOR_PORT);
       pros::ADIUltrasonic eject_sensor(ULTRA_PING_PORT, ULTRA_ECHO_PORT);
       pros::Optical optical_sensor(OPTICAL_SENSOR_PORT);
-      optical_sensor.set_led_pwm(100);
+      pros::Distance leave_distance(LEAVE_DISTANCE_SENSOR_PORT);
+      pros::Distance shoot_distance(SHOOT_DISTANCE_SENSOR_PORT);
+
+        optical_sensor.set_led_pwm(100);
 
       a = master.get_digital_new_press(DIGITAL_A);
 
@@ -182,24 +191,28 @@ void chuteGet(void* pointerParam) {
       int ballPos3Avg[5];
       int ballLeaveAvg[5];
       int colorAvg[5];
+      int ballShootAvg[5];
       int total1 = 0;
       int total2 = 0;
       int total3 = 0;
       int totalL = 0;
       int totalC = 0;
+      int totalS = 0;
       int avg1 = 0;
       int avg2 = 0;
       int avg3 = 0;
       int avgL = 0;
       int avgC = 0;
+      int avgS = 0;
 
       for (int i=0; i<5; i++) {
           ballPos1Avg[i] = lower_line_sensor.get_value();
           colorAvg[i] = optical_sensor.get_hue();
           ballPos3Avg[i] = upper_line_sensor.get_value();
           ballPos2Avg[i] = secondPos_line_sensor.get_value();
-          ballLeaveAvg[i] = secondPos_line_sensor.get_value();
-//          ballLeaveAvg[i] = eject_sensor.get_value();
+//          ballLeaveAvg[i] = secondPos_line_sensor.get_value();
+          ballLeaveAvg[i] = leave_distance.get();
+          ballShootAvg[i] = shoot_distance.get();
           pros::delay(20);
       }
 
@@ -209,6 +222,8 @@ void chuteGet(void* pointerParam) {
           total3 += ballPos3Avg[i];
           totalL += ballLeaveAvg[i];
           totalC += colorAvg[i];
+          totalS += ballShootAvg[i];
+
       }
 
       avg1 = total1/5;
@@ -216,6 +231,7 @@ void chuteGet(void* pointerParam) {
       avg3 = total3/5;
       avgL = totalL/5;
       avgC = totalC/5;
+      avgS = totalS/5;
 
 
 
@@ -245,19 +261,31 @@ void chuteGet(void* pointerParam) {
       } else {
         ballPos3 = false;
       }
-      if(avgL < 2900) { //if ball is present
-//      if(avgL < 100 && avgL > 0){ //if ball is present
+
+      if(avgL < 60 && avgL > 0) { //if ball is present
           ballLeave = true;
+          std::cout <<"set L true" << std::endl;
       } else {
           ballLeave = false;
+          std::cout <<"set L false" << std::endl;
+      }
+
+      if(avgS < 60 && avgS > 0) { //if ball is present (values in mm)
+          ballShoot = true;
+          std::cout << "set S true" << std::endl;
+      } else {
+          ballShoot = false;
+          std::cout << "set S false" << std::endl;
       }
 
 
+
+
       pros::lcd::print(0, "Position 1: %d", avg1);
-      pros::lcd::print(1, "Position 2: %d", ballPos2);
-      pros::lcd::print(2, "Position 3: %d", ballPos3);
+      pros::lcd::print(1, "Position 2: %d", avg2);
+      pros::lcd::print(2, "Position 3: %d", avg3);
       pros::lcd::print(3, "Color: %d", ballPos2Color);
-      pros::lcd::print(4, "Eject: %d", ballLeave);
+      pros::lcd::print(4, "Eject: %d", avgL);
 //      pros::lcd::print(5, "Eject: %d", eject_sensor.get_value());
 //      pros::lcd::print(6, "Selector %d", selector.get_value());
 
@@ -354,7 +382,7 @@ bool ballPos3Get() {
 }
 
 bool ballLeaveGet() {
- return ballLeave;
+ return 0;
 }
 
 bool ballPos1ColorGet() {
@@ -367,6 +395,10 @@ int ballPos2ColorGet() {
 
 bool ballPos3ColorGet() {
   return ballPos3Color;
+}
+
+bool ballShootGet() {
+    return ballShoot;
 }
 
 void colorModeSet(bool color) {
@@ -436,7 +468,7 @@ void telemetryGetTaskInit() {
   pros::Task encoders_task(baseEncodersGet,(void*)"BASE_TASK");
   pros::Task ball_tracking_task(chuteGet,(void*)"BALL_TRACKING_TASK");
   pros::Task inertial_task(inertialGet,(void*)"INERTIAL_TASK");
-  pros::Task timer_task(timer,(void*)"TIMER_TASK");
+//  pros::Task timer_task(timer,(void*)"TIMER_TASK");
 }
 
 // double gyroGetAbsolute() {

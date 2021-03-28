@@ -13,10 +13,27 @@ bool shootCycle = false;
 
 
 void chuteMove(int chutePower) {
-  ejector_mtr = chutePower;
-  ejector_mtr2 = chutePower;
-  lower_chute_mtr = (double) chutePower*.7;
-  flywheel_mtr = chutePower;
+    if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
+        ejector_mtr = chutePower;
+        ejector_mtr2 = chutePower;
+        lower_chute_mtr = (double) chutePower * .7;
+        flywheel_mtr = chutePower;
+        ejector_mtrs_mutex.give();
+    }
+}
+
+void chuteMoveOut(int chutePower) {
+    lower_chute_mtr = (double) -chutePower*.7;
+    flywheel_mtr = -chutePower;
+}
+
+void chuteShoot(int chutePower) {
+    if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
+        ejector_mtr = chutePower;
+        ejector_mtr2 = chutePower;
+        flywheel_mtr = chutePower;
+        ejector_mtrs_mutex.give();
+    }
 }
 
 void chuteIndex(int chutePower) {
@@ -24,9 +41,12 @@ void chuteIndex(int chutePower) {
 }
 
 void chuteEject(int chutePower, int indexPower) {
-  ejector_mtr = -chutePower;
-  ejector_mtr2 = -chutePower;
-  lower_chute_mtr = (double) indexPower*.7;
+    if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
+        ejector_mtr = -chutePower;
+        ejector_mtr2 = -chutePower;
+        lower_chute_mtr = (double) indexPower * .7;
+        ejector_mtrs_mutex.give();
+    }
 }
 
 void intakeMove(int sideRollerPower) {
@@ -44,76 +64,99 @@ void setShootCycle(bool shootme) {
 }
 
 
-void autoEjectNoBlock(void* param) {
-    std::uint32_t now = pros::millis();
-    while (true) {
-        if (ejectIt) {
-            if (ballPos2ColorGet() == 1 && colorModeGet() == EJECT_RED) { //eject red balls
-                std::cout << "eject red" << std::endl;
-                lessSmartEjectCycle();
-            } else if (ballPos2ColorGet() == 2 && colorModeGet() == EJECT_BLUE) { //eject blue balls
-                std::cout << "eject blue" << std::endl;
-                lessSmartEjectCycle();
-            }
-        }
-    pros::Task::delay_until(&now, TASK_DELAY_NORMAL);
-    }
-}
+//void autoEjectNoBlock(void* param) {
+//    std::uint32_t now = pros::millis();
+//    while (true) {
+//        if (ejectIt) {
+//            if (ballPos2ColorGet() == 1 && colorModeGet() == EJECT_RED) { //eject red balls
+//                std::cout << "eject red" << std::endl;
+//                lessSmartEjectCycle();
+//            } else if (ballPos2ColorGet() == 2 && colorModeGet() == EJECT_BLUE) { //eject blue balls
+//                std::cout << "eject blue" << std::endl;
+//                lessSmartEjectCycle();
+//            }
+//        }
+//    pros::Task::delay_until(&now, TASK_DELAY_NORMAL);
+//    }
+//}
 
 
 
-void autoShootUntil(bool color, int time_limit) {
-    int start_time = pros::millis();
-    int elapsed_time = 0;
-    if (color) {
-        while (ballPos2ColorGet() != 2 && elapsed_time < time_limit) {
-            chuteMove(127);
-            pros::delay(20);
-            elapsed_time = pros::millis() - start_time;
-        }
-    } else {
-        while (ballPos2ColorGet() != 1 && elapsed_time < time_limit) {
-            chuteMove(127);
-            pros::delay(20);
-            elapsed_time = pros::millis() - start_time;
-        }
-    }
-}
+//void autoShootUntil(bool color, int time_limit) {
+//    int start_time = pros::millis();
+//    int elapsed_time = 0;
+//    if (color) {
+//        while (ballPos2ColorGet() != 2 && elapsed_time < time_limit) {
+//            chuteMove(127);
+//            pros::delay(20);
+//            elapsed_time = pros::millis() - start_time;
+//        }
+//    } else {
+//        while (ballPos2ColorGet() != 1 && elapsed_time < time_limit) {
+//            chuteMove(127);
+//            pros::delay(20);
+//            elapsed_time = pros::millis() - start_time;
+//        }
+//    }
+//}
 
 void outdexFix() {
-    while(!ballPos1Get()) {
-        chuteMove(-100);
-        intakeMove(-50);
+    int elapsed_time = 0;
+    int start_time = pros::millis();
+    while(!ballShootGet() && elapsed_time < 1000) {
+        chuteMoveOut(100);
+        intakeMove(-20);
+        elapsed_time = pros::millis() - start_time;
+        pros::delay(20);
     }
-    chuteMove(0);
-    while(!ballPos3Get()) {
-        chuteIndex(127);
+    chuteMoveOut(0);
+    intakeMove(0);
+    elapsed_time = 0;
+    start_time = pros::millis();
+    while(!ballPos3Get() && elapsed_time < 1000) {
+        chuteIndex(90);
         intakeMove(50);
+        elapsed_time = pros::millis() - start_time;
+        pros::delay(20);
     }
     chuteIndex(0);
-    intakeMove(0);
 }
 
-void autoShootOneBall() {
-//    flywheel_mtr = -60;
-//    pros::delay(500);
-//    flywheel_mtr = 0;
+void autoShootOneBall() { //run outdexFix() first
+    int elapsed_time = 0;
+    int start_time = pros::millis();
+    while (!ballShootGet() && elapsed_time < 1000) {
+        chuteShoot(127);
+        elapsed_time = pros::millis() - start_time;
+        pros::delay(20);
+    }
     pros::delay(500);
-    flywheel_mtr = 127;
-    pros::delay(500);
-    ejector_mtr = 50;
-    ejector_mtr2 = 50;
-    pros::delay(500);
-    flywheel_mtr = -20; //brake
-    ejector_mtr = -20;
-    ejector_mtr2 = -20;
-    lower_chute_mtr = -20;
+    chuteShoot(-20);
+    pros::delay(100);
+    chuteShoot(0);
 
-    pros::delay(200);
-    flywheel_mtr = 0;
-    ejector_mtr = 0;
-    ejector_mtr2 = 0;
-    lower_chute_mtr = 0;
+//    chuteMoveOut(50);
+//    pros::delay(500);
+//    chuteMoveOut(0);
+//    chuteIndex(70);
+//    pros::delay(700);
+//    chuteIndex(0);
+//    pros::delay(500);
+//    flywheel_mtr = 127;
+//    pros::delay(500);
+//    ejector_mtr = 50;
+//    ejector_mtr2 = 50;
+//    pros::delay(500);
+//    flywheel_mtr = -20; //brake
+//    ejector_mtr = -20;
+//    ejector_mtr2 = -20;
+//    lower_chute_mtr = -20;
+//
+//    pros::delay(200);
+//    flywheel_mtr = 0;
+//    ejector_mtr = 0;
+//    ejector_mtr2 = 0;
+//    lower_chute_mtr = 0;
 }
 
 
@@ -288,7 +331,7 @@ void ejectControl(void* param) {
 }
 
 void lessSmartEjectCycle(){
-    std::cout << "eject ball" << std::endl;
+    std::cout << "eject ball cycle" << std::endl;
     int start_time = pros::millis();
     int elapsed_time = 0;
     double scalar = 1;
@@ -296,24 +339,24 @@ void lessSmartEjectCycle(){
 //        chuteEject(-70,127);
 //        pros::delay(200);
 //    }
-//                if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
-    while (!ballLeaveGet() && elapsed_time < 1000) {
-        std::cout << elapsed_time << std::endl;
-        if (ballPos1Get()) {
-            scalar = 0.5;
-        } else {
-            scalar = 1;
+    if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
+        std::cout << ballLeaveGet() << std::endl;
+        while (!ballLeaveGet() && elapsed_time < 1000) {
+            std::cout << elapsed_time << std::endl;
+            if (ballPos1Get()) {
+                scalar = 0.5;
+            } else {
+                scalar = 1;
+            }
+            chuteEject(127, 127 * scalar); //eject until the ball is seen leaving
+            elapsed_time = pros::millis() - start_time;
+            pros::delay(20);
         }
-        chuteEject(127, 127 * scalar); //eject until the ball is seen leaving
+        chuteEject(-50, 0);
         pros::delay(20);
-        elapsed_time = pros::millis() - start_time;
+        chuteEject(0, 0);
+        ejector_mtrs_mutex.give();
     }
-    chuteEject(-50,0);
-    pros::delay(20);
-    chuteEject(0,0);
-
-//                    ejector_mtrs_mutex.give();
-//                }
 }
 
 
@@ -335,7 +378,7 @@ void chuteLessSmartControl(void* param) {
             } else if (left1 && !right1) { //index balls
                 std::cout << "index balls" << std::endl;
                 chuteIndex(127);
-            } else if (right1 || shootCycle) { //shoot balls
+            } else if (right1) { //shoot balls
                 std::cout << "shoot balls" << std::endl;
 //                if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
                 chuteMove(127);
@@ -373,6 +416,6 @@ void chuteControlTaskInit() {
     pros::Task chute_task(chuteLessSmartControl,(void*)"CHUTE_TASK");
 }
 void chuteAutoTaskInit() {
-    pros::Task chute_auto_task(autoEjectNoBlock,(void*)"CHUTE_AUTO_TASK");
+//    pros::Task chute_auto_task(autoEjectNoBlock,(void*)"CHUTE_AUTO_TASK");
 }
 

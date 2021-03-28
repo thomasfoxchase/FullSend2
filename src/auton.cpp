@@ -10,7 +10,7 @@
 
 void blueAuton() {
     beginTimer(true);
-    colorModeSet(BLUE);
+//    colorModeSet(BLUE);
     intakeMove(127);
     chuteIndex(90);
     basePIDMove(-1.25, 5000); //pick up first ball
@@ -70,8 +70,8 @@ void blueAuton() {
 
 void blueAuton2() {
     beginTimer(true);
-    colorModeSet(BLUE);
-    intakeMove(127);
+//    colorModeSet(BLUE);
+    intakeMove( 127);
     chuteIndex(90);
     basePIDMove(-1.25, 5000); //pick up first ball
     basePIDTurn(42, 5000); //turn to goal
@@ -134,6 +134,7 @@ void blueAuton2() {
 }
 
 void blueAuton3() {
+    tareInertial();
     beginTimer(true);
     colorModeSet(BLUE);
     intakeMove(127);
@@ -156,7 +157,7 @@ void blueAuton3() {
     intakeMove(0);
     basePIDMoveHeading(1.7, 142, 0.2, 2000);
     basePIDTurnAbsolute(172, 5000);
-    basePIDMoveHeading(3, 172, 0.2, 1500);
+    basePIDMoveHeading(3, 162, 0.2, 1000);
 //    basePIDMove(-1, 500);
 //    basePIDMove(3, 800);
 //    basePIDMove(-1, 500);
@@ -174,10 +175,14 @@ void blueAuton3() {
 //    chuteIndex(90);
 //    pros::delay(500);
 //    chuteIndex(0);
+    intakeMove(40);
     basePIDMoveHeading(-2, 160, 0.2, 5000);
+    intakeMove(0);
     setEjectIt(false);
-    basePIDTurnAbsolute(270, 5000);
-    basePIDMoveHeading(4.1, 270, 0.2, 3000);
+    basePIDTurnAbsolute(265, 5000);
+//    basePIDMoveHeading(-4, 270, 0.2, 2000);
+//    tareInertial();
+    basePIDMoveHeading(4, 270, 0.2, 3000);
 
     basePIDTurnAbsolute(180, 5000);
     setEjectIt(true);
@@ -197,6 +202,63 @@ void blueAuton3() {
 //        }
 //    }
 }
+
+void blueAuton4() {
+    tareInertial();
+    beginTimer(true);
+    colorModeSet(BLUE);
+    intakeMove(127);
+    chuteIndex(90);
+    basePIDMoveHeading(-1.25, 0, 0.2, 5000); //pick up first ball
+    basePIDTurnAbsolute(42, 5000); //turn to goal
+    basePIDMoveHeading(2.0, 42, 0.2, 5000); //pick up first ball
+//    pros::delay(500);
+    chuteIndex(0);
+    basePIDMoveHeading(-0.5, 42, 0.2, 500); //pick up first ball
+    basePIDMoveHeading(0.5, 42, 0.2, 500); //pick up first ball
+    autoShootOneBall();
+    intakeMove(0);
+    chuteIndex(50);
+////autoShootUntil(BLUE, 2000);
+    basePIDMoveHeading(-2.2, 42, 0.2, 5000);
+    intakeMove(127);
+    basePIDTurnAbsolute(135, 5000);
+    setEjectIt(true);
+    intakeMove(-70);
+    basePIDMoveHeading(2.2, 135, 0.2, 2000); //drive into second goal
+    intakeMove(127); //intkae balls
+
+    outdexFix();
+    autoShootOneBall();
+    intakeMove(0); //intkae balls
+    chuteIndex(50); //eject red
+
+    basePIDMoveHeading(-2, 160, 0.2, 5000);
+    setEjectIt(false);
+    basePIDTurnAbsolute(270, 5000);
+//    basePIDMoveHeading(-4, 270, 0.2, 2000);
+//    tareInertial();
+    basePIDMoveHeading(4, 270, 0.2, 3000);
+    basePIDTurnAbsolute(180, 5000);
+    setEjectIt(true);
+    chuteIndex(50);
+    intakeMove(127);
+    basePIDMoveHeading(2, 180, 0.2, 2000);
+    chuteIndex(0);
+    intakeMove(0);
+    autoShootOneBall();
+    pros::delay(1000);
+    autoShootOneBall();
+    setEjectIt(false);
+//    while (true) {
+//
+//        if(timeGet() > 4400) {
+//            basePIDMove(-3, 2000); // back of at end of auto
+//        }
+//    }
+}
+
+
 
 void redAuton() {
     colorModeSet(RED);

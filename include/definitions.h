@@ -24,6 +24,8 @@ extern pros::Controller buddy;
 #define SELECTOR_PORT 'a'
 #define ULTRA_PING_PORT 'e'
 #define ULTRA_ECHO_PORT 'f'
+#define LEAVE_DISTANCE_SENSOR_PORT 5
+#define SHOOT_DISTANCE_SENSOR_PORT 6
 
 
 //current values

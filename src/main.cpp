@@ -32,7 +32,6 @@ void initialize() {
 	// pros::lcd::set_text(1, "Hello PROS User!");
 	// pros::lcd::register_btn1_cb(on_center_button);
 	telemetryGetTaskInit();
-    chuteAutoTaskInit();
 	pros::delay(1500); //init for gyro
 }
 
@@ -66,8 +65,9 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+//    chuteAutoTaskInit();
     std::cout << "in auto" << std::endl;
-    blueAuton2();
+    blueAuton3();
 }
 /**
  * Runs the operator control code. This function will be started in its own task

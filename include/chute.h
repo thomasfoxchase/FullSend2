@@ -20,6 +20,7 @@ void chuteAutoTaskInit();
 void autoShootOneBall();
 void setShootCycle(bool shootme);
 void outdexFix();
+void chuteMoveOut(int chutePower);
 
 
 
