@@ -27,6 +27,8 @@ extern pros::Controller buddy;
 #define ULTRA_ECHO_PORT 'f'
 #define LEAVE_DISTANCE_SENSOR_PORT 5
 #define SHOOT_DISTANCE_SENSOR_PORT 6
+#define POS2_DISTANCE_SENSOR_PORT 19
+
 
 
 //current values

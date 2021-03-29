@@ -124,22 +124,26 @@ void outdexFix() {
     elapsed_time = 0;
     start_time = pros::millis();
     std::cout << "pos 3 state: " << ballPos3Get() << std::endl;
+    pros::delay(200);
+    while(!ballPos3Get() && elapsed_time < 1000) { //uptake until high optical sensor sees ball
+        std::cout << "outdexFix: Step 4" << std::endl;
+        chuteIndex(110);
+        intakeMove(100);
+        elapsed_time = pros::millis() - start_time;
+        pros::delay(20);
+    }
 
-//    while(!ballPos3Get() && elapsed_time < 1000) { //uptake until high optical sensor sees ball
-//        std::cout << "outdexFix: Step 4" << std::endl;
-//        chuteIndex(90);
-//        intakeMove(50);
-//        elapsed_time = pros::millis() - start_time;
-//        pros::delay(20);
-//    }
-    chuteIndex(90);
-    intakeMove(50);
-    pros::delay(500);
+    chuteIndex(80);
+    pros::delay(300);
+    chuteIndex(0);
+
+//    intakeMove(50);
 
 
     std::cout << "outdexFix: Step 5" << std::endl;
     chuteIndex(0);
     intakeMove(0);
+    pros::delay(500);
 
 }
 
@@ -158,7 +162,7 @@ void autoShootOneBall() { //run outdexFix() first
         pros::delay(20);
     }
     std::cout << "autoShootOneBall: Step 3" << std::endl;
-    pros::delay(500);
+    pros::delay(700);
     chuteShoot(-20);
     pros::delay(100);
     chuteShoot(0);
@@ -413,15 +417,8 @@ void chuteLessSmartControl(void* param) {
 //                    ejector_mtrs_mutex.give();
 //                }
             } else if (right2) {
-                chuteMove(-127);
-//            } else if (left2) { //for ejecting out bottom if pressed with right 2 or failsafe for misfire balls
-////                if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
-//                    std::cout << "spit balls" << std::endl;
-//                    chuteMove(-127);
-////                    ejector_mtrs_mutex.give();
-////                }
+                chuteMoveOut(127);
             } else {
-//            std::cout << "do nothing" << std::endl;
 //                if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
                     chuteMove(0);
                     chuteEject(0,0);

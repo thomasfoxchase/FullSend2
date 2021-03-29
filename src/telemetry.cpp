@@ -3,9 +3,6 @@
 #include "definitions.h"
 #include "motors.h"
 
-
-
-
 pros::Mutex encoders_mutex;
 
 //base encoders (tracking wheels)
@@ -27,17 +24,11 @@ void baseEncodersGet(void* param) {
     if (encoders_mutex.take(MUTEX_WAIT_SHORT)) {
       //takes avg of two base encoders --> used for forward backward movements
       baseEncoderAvg = (left_base_encoder.get_value() + right_base_encoder.get_value())/2;
-      // printf("%i, %6.1f\n", pros::millis(), baseEncoderAvg);
 
       //takes difference of two drive encoders --> used for identifying stray robot turns or directed turns
       baseEncoderRotation = right_base_encoder.get_value() - left_base_encoder.get_value();
-      // printf("%i, %6.1f\n", pros::millis(), baseEncoderRotation);
-
-
-      //more operations to be added here
 
       //translation to feet from rotation
-
       //blue inserts: conversion factor found through testing
       //2 trial on 6 ft of movement and 1 ft of movement >> 3528ticks/6ft = 588ticks/1ft
       driveMotorEncoderAvg = (left_front_mtr.get_position() +
@@ -57,10 +48,6 @@ void baseEncodersGet(void* param) {
                               (right_front_mtr.get_position() +
                               right_middle_mtr.get_position() +
                               right_back_mtr.get_position())/10.6/3;
-      // printf("%i, %6.1f\n", pros::millis(), driveMotorEncoderRotation);
-      // pros::lcd::print(5, "Rotation Ticks: %6.1f", driveMotorEncoderRotation);
-
-
       encoders_mutex.give();
       }
     pros::Task::delay_until(&now, TASK_DELAY_NORMAL);
@@ -166,6 +153,8 @@ void chuteGet(void* pointerParam) {
       pros::Optical optical_high_sensor(OPTICAL_HIGH_SENSOR_PORT);
       pros::Distance leave_distance(LEAVE_DISTANCE_SENSOR_PORT);
       pros::Distance shoot_distance(SHOOT_DISTANCE_SENSOR_PORT);
+      pros::Distance pos2_distance(POS2_DISTANCE_SENSOR_PORT);
+
 
         optical_sensor.set_led_pwm(100);
         optical_high_sensor.set_led_pwm(100);
@@ -239,24 +228,27 @@ void chuteGet(void* pointerParam) {
 
 
       //setter logic
-      if (optical_sensor.get_hue() < 20) { //if red ball
-          ballPos2Color = 1;
+
+      if (optical_sensor.get_proximity() > 50) {
           ballPos2 = true;
-      } else if (optical_sensor.get_hue() > 150) { //if blue ball
-          ballPos2Color = 2;
-          ballPos2 = true;
+          if (optical_sensor.get_hue() < 20) { //if red ball
+              ballPos2Color = 1;
+          } else if (optical_sensor.get_hue() > 200) { //if blue ball
+              ballPos2Color = 2;
+          }
       } else {
           ballPos2Color = 0;
           ballPos2 = false;
       }
 
-        if (optical_high_sensor.get_hue() < 20) { //if red ball
-            ballPos3Color = 1;
-            ballPos3 = true;
-        } else if (optical_high_sensor.get_hue() > 220) { //if blue ball
-            ballPos3Color = 2;
-            ballPos3 = true;
-        } else {
+       if (optical_high_sensor.get_proximity() > 50) {
+           ballPos3 = true;
+           if (optical_high_sensor.get_hue() < 20) { //if red ball
+               ballPos3Color = 1;
+           } else if (optical_high_sensor.get_hue() > 200) { //if blue ball
+               ballPos3Color = 2;
+           }
+       } else {
             ballPos3Color = 0;
             ballPos3 = false;
         }
@@ -303,9 +295,13 @@ void chuteGet(void* pointerParam) {
       pros::lcd::print(1, "Position 2: %d", avg2);
 //      pros::lcd::print(2, "Position 3: %d", avg3);
       pros::lcd::print(3, "Color: %d", ballPos3Get());
-      pros::lcd::print(4, "Eject: %d", ballLeaveGet());
+      pros::lcd::print(4, "Color: %f", optical_sensor.get_hue());
+//      pros::lcd::print(4, "Eject: %d", ballLeaveGet());
       pros::lcd::print(2, "Shoot: %d", ballShootGet());
-//      std::cout << optical_high_sensor.get_hue() << std::endl;
+//      std::cout << "hue " << optical_high_sensor.get_hue() << std::endl;
+//        std::cout << "proximity "<< optical_high_sensor.get_proximity() << std::endl;
+//        std::cout << optical_sensor.get_hue() << std::endl;
+
 
 //      pros::lcd::print(5, "Eject: %d", eject_sensor.get_value());
 //      pros::lcd::print(6, "Selector %d", selector.get_value());
@@ -365,7 +361,7 @@ void chuteGet(void* pointerParam) {
 
 
 
-int time;
+double time;
 bool bigBang;
 
 void beginTimer(bool yes) {
@@ -374,14 +370,16 @@ void beginTimer(bool yes) {
 
 void timer(void* param) {
     std::uint32_t now = pros::millis();
-    int startTime = pros::millis();
+    int start_time = pros::millis();
     time = 0;
     while (true) {
         if (bigBang) {
             time = 0;
             bigBang = false;
+            std::cout << "Time begin:" << time << std::endl;
         }
-        time = pros::millis() - startTime;
+//        std::cout << "Time now:" << time << std::endl;
+        time = (pros::millis() - start_time);
         pros::Task::delay_until(&now, TASK_DELAY_NORMAL);
     }
 }
@@ -490,6 +488,10 @@ void telemetryGetTaskInit() {
   pros::Task ball_tracking_task(chuteGet,(void*)"BALL_TRACKING_TASK");
   pros::Task inertial_task(inertialGet,(void*)"INERTIAL_TASK");
 //  pros::Task timer_task(timer,(void*)"TIMER_TASK");
+}
+
+void timerTaskInit() {
+    pros::Task timer_task(timer,(void*)"TIMER_TASK");
 }
 
 // double gyroGetAbsolute() {

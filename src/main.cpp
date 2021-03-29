@@ -66,6 +66,7 @@ void competition_initialize() {}
  */
 void autonomous() {
     chuteAutoTaskInit();
+    timerTaskInit();
     std::cout << "in auto" << std::endl;
     blueAuton4();
 //    redAuton();

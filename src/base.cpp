@@ -43,7 +43,6 @@ void baseControl(void* param) { //tank control
       int x = master.get_digital(DIGITAL_X);
       int y = master.get_digital(DIGITAL_Y);
 
-//      std::cout << "rotation" << getRotation() << std::endl;
 
       left_back_mtr = left;
       right_back_mtr = right;
@@ -52,7 +51,7 @@ void baseControl(void* param) { //tank control
       left_middle_mtr = left;
       right_middle_mtr = right;
 
-      if (b) {
+      if (b) { // tester for auton features
           autoFunctionTester(-45);
       } else if (y) {
           autoFunctionTester(-90);
