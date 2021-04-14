@@ -51,6 +51,9 @@ Mkfile.old
 dkms.conf
 *.bin
 
+# emacs things
+*~
+
 # VSCode things
 .vscode/*
 !.vscode/settings.json
