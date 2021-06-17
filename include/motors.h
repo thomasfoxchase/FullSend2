@@ -21,8 +21,10 @@ extern pros::Motor upper_chute_mtr;
 extern pros::Motor left_intake_mtr;
 extern pros::Motor right_intake_mtr;
 extern pros::Motor ejector_mtr;
-extern pros::Motor ejector_mtr2;
+//extern pros::Motor ejector_mtr2;
 extern pros::Motor flywheel_mtr;
+extern pros::Motor flywheel_mtr2;
+
 
 //MOTOR PORTS
 
@@ -44,10 +46,12 @@ extern pros::Motor flywheel_mtr;
 
   //Ejector
 #define EJECTOR_PORT 4
-#define EJECTOR2_PORT 12
+//#define EJECTOR2_PORT 12
 
 //flywheel
 #define FLYWHEEL_PORT 3
+#define FLYWHEEL2_PORT 15
+
 
 
 

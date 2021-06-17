@@ -106,6 +106,11 @@ void baseTester() {
     std::cout << "right_middle: " << right_middle_mtr.get_position() << std::endl;
     std::cout << "right_back: " << right_back_mtr.get_position() << std::endl;
     baseMove(0,0);
+    std::cout << "left  avg: " << (left_front_mtr.get_position() + left_middle_mtr.get_position() + left_back_mtr.get_position())/3 << std::endl;
+    std::cout << "right avg: " << (right_front_mtr.get_position() + right_middle_mtr.get_position() + right_back_mtr.get_position())/3 << std::endl;
+
+
+
 }
 
 //BASE AUTON MOVEMENT FUNCTIONS

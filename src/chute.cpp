@@ -15,9 +15,11 @@ bool shootCycle = false;
 void chuteMove(int chutePower) {
     if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
         ejector_mtr = chutePower;
-        ejector_mtr2 = chutePower;
+//        ejector_mtr2 = chutePower;
         lower_chute_mtr = (double) chutePower * .7;
         flywheel_mtr = chutePower;
+        flywheel_mtr2 = chutePower;
+
         ejector_mtrs_mutex.give();
     }
 }
@@ -25,13 +27,17 @@ void chuteMove(int chutePower) {
 void chuteMoveOut(int chutePower) {
     lower_chute_mtr = (double) -chutePower*.7;
     flywheel_mtr = -chutePower;
+    flywheel_mtr2 = -chutePower;
+
 }
 
 void chuteShoot(int chutePower) {
     if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
         ejector_mtr = chutePower;
-        ejector_mtr2 = chutePower;
+//        ejector_mtr2 = chutePower;
         flywheel_mtr = chutePower;
+        flywheel_mtr2 = chutePower;
+        lower_chute_mtr = 0; //stop intake
         ejector_mtrs_mutex.give();
     }
 }
@@ -43,15 +49,15 @@ void chuteIndex(int chutePower) {
 void chuteEject(int chutePower, int indexPower) {
     if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
         ejector_mtr = -chutePower;
-        ejector_mtr2 = -chutePower;
+//        ejector_mtr2 = -chutePower;
         lower_chute_mtr = (double) indexPower * .7;
         ejector_mtrs_mutex.give();
     }
 }
 
-void chuteEjectNoMutex(int chutePower, int indexPower) {
-    ejector_mtr = -chutePower;
-    ejector_mtr2 = -chutePower;
+void chuteEjectNoMutex(int ejectorPower, int indexPower) {
+    ejector_mtr = -ejectorPower;
+//    ejector_mtr2 = -chutePower;
     lower_chute_mtr = (double) indexPower * .7;
     ejector_mtrs_mutex.give();
 }
@@ -193,6 +199,7 @@ void autoShootOneBall() { //run outdexFix() first
 
 
 int right1;
+int right1New;
 int right2;
 int left1;
 int left2;
@@ -242,7 +249,7 @@ void intakeControl(void* param) {
             if (left1) {
                 intakeMove(127);
             } else if (left2) {
-                intakeMove(-127);
+                intakeMove(-90);
             } else {
                 intakeMove(0);
             }
@@ -383,6 +390,13 @@ void lessSmartEjectCycle(){
             chuteEjectNoMutex(127, 127 * scalar); //eject until the ball is seen leaving
             elapsed_time = pros::millis() - start_time;
             pros::delay(20);
+            if (ballPos2ColorGet() == 2 && colorModeGet() == EJECT_RED) { //don't eject the blue coming in next
+                std::cout << "stop extra blue eject" << std::endl;
+                chuteEjectNoMutex(127, 0); //leave on only the ejector
+            } else if (ballPos2ColorGet() == 1 && colorModeGet() == EJECT_BLUE) { //don't eject the red coming in next
+                std::cout << "stop extra red eject" << std::endl;
+                chuteEjectNoMutex(127, 0); //leave on only the ejector
+            }
         }
         chuteEjectNoMutex(-50, 0);
         pros::delay(20);
@@ -395,12 +409,28 @@ void lessSmartEjectCycle(){
 
 void chuteLessSmartControl(void* param) {
     std::uint32_t now = pros::millis();
+    int startTime = 0;
+    bool doubleClick = false;
+    lower_chute_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    ejector_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     while(true) {
+        std::uint32_t now = pros::millis();
         left1 = master.get_digital(DIGITAL_L1);
         left2 = master.get_digital(DIGITAL_L2);
         right1 = master.get_digital(DIGITAL_R1);
+        right1New = master.get_digital_new_press(DIGITAL_R1);
         right2 = master.get_digital(DIGITAL_R2);
         if (chute_mutex.take(MUTEX_WAIT_SHORT)) {
+
+            //doubleClick Logic
+            if (right1New && now - startTime < 500) { // if double click right1
+                doubleClick = true;
+            } else if (right1New) {
+                startTime = now;
+                doubleClick = false;
+            }
+
+            //chute logic
             if (ballPos2ColorGet() == 1 && colorModeGet() == EJECT_RED) { //eject red balls
                 std::cout << "eject red" << std::endl;
                 lessSmartEjectCycle();
@@ -410,12 +440,15 @@ void chuteLessSmartControl(void* param) {
             } else if (left1 && !right1) { //index balls
                 std::cout << "index balls" << std::endl;
                 chuteIndex(127);
-            } else if (right1) { //shoot balls
-                std::cout << "shoot balls" << std::endl;
-//                if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
-                chuteMove(127);
-//                    ejector_mtrs_mutex.give();
-//                }
+            } else if (right1) {
+                std::cout << "startTime: " << startTime << std::endl;
+                std::cout << "now: " << now << std::endl;
+                if (doubleClick) { // if double click right1
+                    chuteMove(127);
+                } else {
+                    chuteShoot(127);
+                    //ejector mutex comment here
+                }
             } else if (right2) {
                 chuteMoveOut(127);
             } else {
