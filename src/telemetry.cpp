@@ -231,9 +231,9 @@ void chuteGet(void* pointerParam) {
 
       if (optical_sensor.get_proximity() > 50) {
           ballPos2 = true;
-          if (optical_sensor.get_hue() < 20) { //if red ball
+          if (optical_sensor.get_hue() < 40) { //if red ball
               ballPos2Color = 1;
-          } else if (optical_sensor.get_hue() > 200) { //if blue ball
+          } else if (optical_sensor.get_hue() > 150) { //if blue ball
               ballPos2Color = 2;
           }
       } else {
