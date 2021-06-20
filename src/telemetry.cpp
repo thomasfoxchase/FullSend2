@@ -153,7 +153,7 @@ void chuteGet(void* pointerParam) {
       pros::Optical optical_high_sensor(OPTICAL_HIGH_SENSOR_PORT);
       pros::Distance leave_distance(LEAVE_DISTANCE_SENSOR_PORT);
       pros::Distance shoot_distance(SHOOT_DISTANCE_SENSOR_PORT);
-      pros::Distance pos2_distance(POS2_DISTANCE_SENSOR_PORT);
+      pros::Distance high_distance(HIGH_DISTANCE_SENSOR_PORT);
 
 
         optical_sensor.set_led_pwm(100);
@@ -272,6 +272,14 @@ void chuteGet(void* pointerParam) {
 //        ballPos3 = false;
 //      }
 
+        if(high_distance.get() < 60 && high_distance.get() > 0) { //if ball is present
+            ballPos3 = true;
+//          std::cout <<"set L true" << std::endl;
+        } else {
+            ballPos3 = false;
+//          std::cout <<"set L false" << std::endl;
+        }
+
       if(leave_distance.get() < 60 && leave_distance.get() > 0) { //if ball is present
           ballLeave = true;
 //          std::cout <<"set L true" << std::endl;
@@ -291,8 +299,8 @@ void chuteGet(void* pointerParam) {
 
 
 
-      pros::lcd::print(0, "Position 1: %d", avg1);
-      pros::lcd::print(1, "Position 2: %d", avg2);
+      pros::lcd::print(0, "Position 3: %d", ballPos3Get());
+      pros::lcd::print(1, "Leave: %d", ballLeaveGet());
 //      pros::lcd::print(2, "Position 3: %d", avg3);
       pros::lcd::print(3, "Color: %d", ballPos3Get());
       pros::lcd::print(4, "Color: %f", optical_sensor.get_hue());

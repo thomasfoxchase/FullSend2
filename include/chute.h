@@ -22,6 +22,11 @@ void setShootCycle(bool shootme);
 void outdexFix();
 void chuteMoveOut(int chutePower);
 
+void ejectorMove(int ejectorPower);
+void indexerMove(int indexerPower, double scalar);
+void flyWheelMove(int flyWheelPower);
+
+
 
 
 

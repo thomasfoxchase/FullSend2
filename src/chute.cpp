@@ -193,24 +193,21 @@ void outdexFix() {
 }
 
 void autoShootOneBall() { //run outdexFix() first
-//    if (ballShootGet()) {
-//        outdexFix();
-//    }
+    flywheel_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    flywheel_mtr2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     std::cout << "autoShootOneBall: Step 1" << std::endl;
     int elapsed_time = 0;
     int start_time = pros::millis();
-    chuteMove(0);
+    indexerMove(0,0);
     while ((ballShootGet() || ballPos3Get()) && elapsed_time < 1000) {
         std::cout << "autoShootOneBall: Step 2" << std::endl;
-        chuteShoot(127);
+        flyWheelMove(127);
         elapsed_time = pros::millis() - start_time;
         pros::delay(20);
     }
     std::cout << "autoShootOneBall: Step 3" << std::endl;
-    pros::delay(700);
-    chuteShoot(-20);
-    pros::delay(100);
-    chuteShoot(0);
+    pros::delay(200);
+    flyWheelMove(0);
 }
 
 int right1;

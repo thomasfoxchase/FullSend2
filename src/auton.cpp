@@ -7,6 +7,9 @@
 #include "motors.h"
 
 
+void autoTester() {
+    autoShootOneBall();
+}
 
 
 void blueAuton() {
@@ -279,6 +282,91 @@ void blueAuton4() {
 //    pros::delay(1000);
 //    autoShootOneBall();
 //    setEjectIt(false);
+    while (true) {
+        if(timeGet() > 44200) {
+            basePIDMove(-2, 2000); // back of at end of auto
+            break;
+        }
+        pros::delay(20);
+    }
+}
+
+
+void newAuton() {
+
+    tareInertial();
+    beginTimer(true);
+    colorModeSet(BLUE);
+    setEjectIt(false);
+
+    flyWheelMove(-127); //deploy
+    pros::delay(200);
+    flyWheelMove(0);
+
+    intakeMove(127);
+    indexerMove(90, 1);
+    basePIDMoveHeading(-1.25, 0, 0.2, 5000); //pick up first ball
+    basePIDTurnAbsolute(42, 5000); //turn to goal
+    basePIDMoveHeading(3.0, 42, 0.2, 1500); //pick up first ball
+//    pros::delay(500);
+    indexerMove(0,0);
+//    basePIDMoveHeading(-1, 42, 0.2, 400); //pick up first ball
+//    basePIDMoveHeading(1, 42, 0.2, 400); //pick up first ball
+//    outdexFix();
+    autoShootOneBall();
+    pros::delay(500);
+    intakeMove(-50);
+    indexerMove(127,1);
+    basePIDMoveHeading(-1, 42, 0.2, 5000);
+    intakeMove(0);
+    basePIDTurnAbsolute(142, 5000);
+    basePIDMoveHeading(1.7, 142, 0.2, 2000);
+    basePIDTurnAbsolute(172, 5000);
+    intakeMove(70);
+    basePIDMoveHeading(3.5, 170, 0.2, 2000);
+    basePIDMoveHeading(-1, 170, 0.2, 1500);
+    intakeMove(0);
+    baseMove(60,60);
+    pros::delay(500);
+    baseMove(0,0);
+    pros::delay(500);
+    basePIDMoveHeading(-1, 170, 0.2, 1500);
+    baseMove(60,60);
+    pros::delay(500);
+    baseMove(0,0);
+
+
+
+
+//    basePIDMoveHeading(-2, 170, 0.2, 1500);
+//    intakeMove(0);
+//    basePIDMoveHeading(3, 170, 0.2, 1500);
+//    basePIDMoveHeading(-2, 170, 0.2, 1500);
+//    basePIDMoveHeading(3, 170, 0.2, 1500);
+    basePIDTurn(-30, 500);
+
+//    outdexFix();
+    autoShootOneBall();
+    pros::delay(500);
+    intakeMove(-50);
+    basePIDMoveHeading(-2, 137, 0.2, 5000);
+//    setEjectIt(false);
+    indexerMove(90,1);
+    intakeMove(0);
+    basePIDTurnAbsolute(270, 5000);
+    basePIDMoveHeading(-4, 270, 0.2, 2000);
+    tareInertial();
+    basePIDMoveHeading(5.3, 0, 0.2, 3000);
+    basePIDTurnAbsolute(-90, 5000);
+//    setEjectIt(true);
+    indexerMove(90,1);
+    intakeMove(-70);
+    basePIDMoveHeading(2.7, -90, 0.2, 2000);
+    indexerMove(0,0);
+    intakeMove(0);
+//    outdexFix();
+    autoShootOneBall();
+
     while (true) {
         if(timeGet() > 44200) {
             basePIDMove(-2, 2000); // back of at end of auto

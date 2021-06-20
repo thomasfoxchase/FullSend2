@@ -70,7 +70,8 @@ void autonomous() {
 //    std::cout << "in auto" << std::endl;
 //    blueAuton4();
 //    redAuton();
-    baseTester();
+//    baseTester();
+    newAuton();
 }
 /**
  * Runs the operator control code. This function will be started in its own task
