@@ -14,7 +14,7 @@ void autoTester() {
 
 void blueAuton() {
     beginTimer(true);
-//    colorModeSet(BLUE);
+    colorModeSet(BLUE);
     intakeMove(127);
     chuteIndex(90);
     basePIDMove(-1.25, 5000); //pick up first ball
@@ -293,10 +293,10 @@ void blueAuton4() {
 
 
 void newAuton() {
-
+    colorModeSet(EJECT_BLUE);
     tareInertial();
     beginTimer(true);
-    colorModeSet(BLUE);
+//    colorModeSet(BLUE);
     setEjectIt(false);
 
     flyWheelMove(-127); //deploy
@@ -315,25 +315,27 @@ void newAuton() {
 //    outdexFix();
     autoShootOneBall();
     pros::delay(500);
-    intakeMove(-50);
+    intakeMove(0);
+//    intakeMove(-50);
     indexerMove(127,1);
     basePIDMoveHeading(-1, 42, 0.2, 5000);
     intakeMove(0);
+    indexerMove(10,1);
     basePIDTurnAbsolute(142, 5000);
     basePIDMoveHeading(1.7, 142, 0.2, 2000);
     basePIDTurnAbsolute(172, 5000);
     intakeMove(70);
     basePIDMoveHeading(3.5, 170, 0.2, 2000);
-    basePIDMoveHeading(-1, 170, 0.2, 1500);
-    intakeMove(0);
-    baseMove(60,60);
-    pros::delay(500);
-    baseMove(0,0);
-    pros::delay(500);
-    basePIDMoveHeading(-1, 170, 0.2, 1500);
-    baseMove(60,60);
-    pros::delay(500);
-    baseMove(0,0);
+//    basePIDMoveHeading(-1, 170, 0.2, 1500);
+//    intakeMove(0);
+//    baseMove(60,60);
+//    pros::delay(500);
+//    baseMove(0,0);
+//    pros::delay(500);
+//    basePIDMoveHeading(-1, 170, 0.2, 1500);
+//    baseMove(60,60);
+//    pros::delay(500);
+//    baseMove(0,0);
 
 
 
@@ -350,22 +352,24 @@ void newAuton() {
     pros::delay(500);
     intakeMove(-50);
     basePIDMoveHeading(-2, 137, 0.2, 5000);
-//    setEjectIt(false);
+//    setEjectIt(falsduejube);
     indexerMove(90,1);
     intakeMove(0);
     basePIDTurnAbsolute(270, 5000);
-    basePIDMoveHeading(-4, 270, 0.2, 2000);
+    indexerMove(10,1);
+    basePIDMoveHeading(-3, 270, 0.2, 1700);
     tareInertial();
     basePIDMoveHeading(5.3, 0, 0.2, 3000);
     basePIDTurnAbsolute(-90, 5000);
 //    setEjectIt(true);
     indexerMove(90,1);
     intakeMove(-70);
-    basePIDMoveHeading(2.7, -90, 0.2, 2000);
+    basePIDMoveHeading(2.8, -90, 0.2, 2000);
     indexerMove(0,0);
     intakeMove(0);
 //    outdexFix();
     autoShootOneBall();
+//    basePIDMove(-2, 2000); // back of at end of auto
 
     while (true) {
         if(timeGet() > 44200) {
@@ -384,7 +388,7 @@ void redAuton() {
 //    outdexFix();
 //    autoShootOneBall();
 
-//    beginTimer(true);
+    beginTimer(true);
     while(true) {
         pros::delay(500);
         while (true) {

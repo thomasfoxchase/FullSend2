@@ -164,9 +164,15 @@ void chuteGet(void* pointerParam) {
 
       if (a) {
           if (colorMode == EJECT_RED) {
+              master.rumble(".");
               colorMode = EJECT_BLUE;
+              master.print(0, 0, "EJECTING BLUE");
+//              master.set_text(0, 0,"proximity: %d", optical_sensor.get_proximity());
           } else {
+              master.rumble("..");
               colorMode = EJECT_RED;
+              master.print(0, 0, "EJECTING RED");
+
           }
       }
 
@@ -197,6 +203,10 @@ void chuteGet(void* pointerParam) {
       int avgC = 0;
       int avgS = 0;
 
+      int opticalAvg[2];
+      int totalOptical;
+      int avgOptical;
+
       for (int i=0; i<5; i++) {
           ballPos1Avg[i] = lower_line_sensor.get_value();
           colorAvg[i] = optical_sensor.get_hue();
@@ -208,7 +218,9 @@ void chuteGet(void* pointerParam) {
           pros::delay(20);
       }
 
-      for (int i=0; i<5; i++) {
+
+
+            for (int i=0; i<5; i++) {
           total1 += ballPos1Avg[i];
           total2 += ballPos2Avg[i];
           total3 += ballPos3Avg[i];
@@ -225,15 +237,27 @@ void chuteGet(void* pointerParam) {
       avgC = totalC/5;
       avgS = totalS/5;
 
+        avgOptical = totalOptical/5;
 
+        for (int i=0; i<2; i++) {
+            opticalAvg[i] = optical_sensor.get_hue();
+            pros::delay(20);
+        }
+
+        for (int i=0; i<2; i++) {
+            totalOptical += opticalAvg[i];
+
+        }
+
+        avgOptical = totalOptical/2;
 
       //setter logic
 
-      if (optical_sensor.get_proximity() > 50) {
+      if (optical_sensor.get_proximity() > 200) {
           ballPos2 = true;
-          if (optical_sensor.get_hue() < 40) { //if red ball
+          if (optical_sensor.get_hue() < 25) { //if red ball
               ballPos2Color = 1;
-          } else if (optical_sensor.get_hue() > 150) { //if blue ball
+          } else if (optical_sensor.get_hue() > 180) { //if blue ball
               ballPos2Color = 2;
           }
       } else {
@@ -243,9 +267,9 @@ void chuteGet(void* pointerParam) {
 
        if (optical_high_sensor.get_proximity() > 50) {
            ballPos3 = true;
-           if (optical_high_sensor.get_hue() < 20) { //if red ball
+           if (optical_high_sensor.get_hue() < 100) { //if red ball
                ballPos3Color = 1;
-           } else if (optical_high_sensor.get_hue() > 200) { //if blue ball
+           } else if (optical_high_sensor.get_hue() > 100) { //if blue ball
                ballPos3Color = 2;
            }
        } else {
@@ -302,10 +326,12 @@ void chuteGet(void* pointerParam) {
       pros::lcd::print(0, "Position 3: %d", ballPos3Get());
       pros::lcd::print(1, "Leave: %d", ballLeaveGet());
 //      pros::lcd::print(2, "Position 3: %d", avg3);
-      pros::lcd::print(3, "Color: %d", ballPos3Get());
+      pros::lcd::print(3, "proximity: %d", optical_sensor.get_proximity());
+//      pros::lcd::print(3, "color avg: %d", avgO\/\\ptical;
       pros::lcd::print(4, "Color: %f", optical_sensor.get_hue());
 //      pros::lcd::print(4, "Eject: %d", ballLeaveGet());
       pros::lcd::print(2, "Shoot: %d", ballShootGet());
+
 //      std::cout << "hue " << optical_high_sensor.get_hue() << std::endl;
 //        std::cout << "proximity "<< optical_high_sensor.get_proximity() << std::endl;
 //        std::cout << optical_sensor.get_hue() << std::endl;
@@ -316,9 +342,10 @@ void chuteGet(void* pointerParam) {
 
         if (colorMode == EJECT_RED) {
             pros::lcd::print(5, "EJECTING RED");
-//            master.set_text(pros::E_CONTROLLER_MASTER, 0, 0, "EJECTING RED");
         } else {
             pros::lcd::print(5, "EJECTING BLUE");
+
+
 //            master.set_text(pros::E_CONTROLLER_MASTER, 0, 0, "EJECTING BLUE");
         }
 
@@ -383,6 +410,7 @@ void timer(void* param) {
     while (true) {
         if (bigBang) {
             time = 0;
+            start_time = pros::millis();
             bigBang = false;
             std::cout << "Time begin:" << time << std::endl;
         }
@@ -429,10 +457,12 @@ bool ballShootGet() {
 }
 
 void colorModeSet(bool color) {
-    if (BLUE) {
-        colorMode = BLUE;
+    if (EJECT_RED) {
+//        master.clear_line(0);
+        colorMode = EJECT_RED;
     } else {
-        colorMode = RED;
+//        master.clear_line(0);
+        colorMode = EJECT_BLUE;
     }
 }
 
@@ -495,7 +525,7 @@ void telemetryGetTaskInit() {
   pros::Task encoders_task(baseEncodersGet,(void*)"BASE_TASK");
   pros::Task ball_tracking_task(chuteGet,(void*)"BALL_TRACKING_TASK");
   pros::Task inertial_task(inertialGet,(void*)"INERTIAL_TASK");
-//  pros::Task timer_task(timer,(void*)"TIMER_TASK");
+  pros::Task timer_task(timer,(void*)"TIMER_TASK");
 }
 
 void timerTaskInit() {

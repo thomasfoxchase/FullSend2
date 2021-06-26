@@ -216,41 +216,6 @@ int right2;
 int left1;
 int left2;
 
-//void chuteControl(void* param) {
-//  //manage chute
-//  std::uint32_t now = pros::millis();
-//  double maxTimeBeforeSecondClick = 200;
-//  double chuteClickTime = 0;
-//  while (true) {
-//    right1 = master.get_digital(DIGITAL_R1);
-//    right2 = master.get_digital(DIGITAL_R2);
-//    left1 = master.get_digital(DIGITAL_L1);
-//    left2 = master.get_digital(DIGITAL_L2);
-//    if (chute_mutex.take(MUTEX_WAIT_SHORT)) {
-//        std::cout << "im in chuteControl" << std::endl;
-//        if (left2) { //rollers in
-//        chuteEject(127, 127); //eject balls out back
-//      } else if (left1) {
-//        intakeMove(FULL_POWER);
-//        chuteIndex(127); //intake balls
-//        chuteDirection = IN;
-//      } else if (right1) {
-//        chuteMove(127); //shoot balls
-//        chuteDirection = IN;
-//      } else if (right2) {
-//        intakeMove(-FULL_POWER);
-//        chuteMove(-127); //eject out bottom
-//        chuteDirection = OUT;
-//      } else {
-//      chuteMove(0);
-//      intakeMove(0);
-//      }
-//      chute_mutex.give();
-//     }
-//   pros::Task::delay_until(&now, TASK_DELAY_NORMAL);
-// }
-//}
-
 void intakeControl(void* param) {
     //manage side rollers
     std::uint32_t now = pros::millis();
@@ -272,72 +237,6 @@ void intakeControl(void* param) {
 }
 
 
-//void chuteSmartIndexingControl(void* param) {
-//  std::uint32_t now = pros::millis();
-//
-//  //INTAKE AND INDEX LOGIC >> Know color system (just telemetry read outs)
-//  //begin >> no balls in bot, all three sensors read neg on present
-//  //ball enters bot
-//    //identify its color as it enters and assign it a BLUE or RED value
-//
-//    //CONTROLS:
-//    //left1 = shoot balls
-//    //left2 = down take chute
-//    //right1 = side rollers in
-//    //right2 = side rollers out
-//    //left2 && right2 = eject out bottom
-//    //left1 && right2 = shoot balls while putting last ball in (if 4 balls are in the chute >> the last will be in the intakes)
-//
-//    while(true) {
-//        left1 = master.get_digital(DIGITAL_L1);
-//        left2 = master.get_digital(DIGITAL_L2);
-//        if (chute_mutex.take(MUTEX_WAIT_SHORT)) {
-//          if (left1) { //shoot balls
-//            std::cout << "shoot balls" << std::endl;
-//            if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
-//                chuteMove(127);
-//                ejector_mtrs_mutex.give();
-//            }
-//        } else if (left2) { //for ejecting out bottom if pressed with right 2 or failsafe for misfire balls
-//            if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
-//                chuteMove(-127);
-//                ejector_mtrs_mutex.give();
-//            }
-//        } else if (ballPos1Get()) {
-//          if (!ballPos3Get()) { //there are no balls in the chute
-//            std::cout << "indexing first ball" << std::endl;
-//            while(!ballPos3Get() && ballPos2ColorGet() != 1) {
-//              chuteIndex(127); //index to ballPos3
-//              pros::delay(20);
-//            }
-//            chuteIndex(0);
-//          } else if (ballPos3Get()) { //there is one ball in the chute
-//              std::cout << "indexing second ball" << std::endl;
-//              while(!ballPos2Get() && ballPos2ColorGet() != 1) {
-//              chuteIndex(127); //index to ballPos2
-//              pros::delay(20);
-//            }
-//            chuteIndex(0);
-//          } else { //there are two balls already in the robot
-//            std::cout << "indexing third ball" << std::endl;
-//            chuteIndex(127); //index ball into bot slightly
-//            pros::delay(200);
-//            chuteIndex(0);
-//
-//          }
-//        } else {
-////            std::cout << "do nothing" << std::endl;
-//            if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
-//                chuteMove(0);
-//                chuteEject(0,0);
-//                ejector_mtrs_mutex.give();
-//            }
-//        }
-//        chute_mutex.give();
-//      }
-//      pros::Task::delay_until(&now, TASK_DELAY_NORMAL);
-//    }
-
 
 
     //if the intakes are running in and a ball arrives at a new ballpos, we can assume it came from the below ballpos
@@ -347,39 +246,7 @@ void intakeControl(void* param) {
 
 //}
 
-//void ejectControl(void* param) {
-//    std::uint32_t now = pros::millis();
-//    int start_time = pros::millis();
-//    int elapsed_time;
-//    double scalar = 1;
-//    while(true) {
-//        if (ballPos2ColorGet() == 1) { //if red ball: this will be adjusted later to be customizable based on match
-//            if (ejector_mtrs_mutex.take(MUTEX_WAIT_SHORT)) {
-//                std::cout << "eject ball" << std::endl;
-//                elapsed_time = 0;
-//                while (!ballLeaveGet() && elapsed_time < 2000 ) {
-//                    std::cout << elapsed_time << std::endl;
-//                    if (ballPos1Get()) {
-//                        scalar = 0.5;
-//                    } else {
-//                        scalar = 1;
-//                    }
-//                    chuteEject(127,127*scalar); //eject until the ball is seen leaving
-//                    pros::delay(20);
-//                    elapsed_time = pros::millis() - start_time;
-//                }
-//                chuteEject(-127,0);
-//                pros::delay(100);
-////                motorBrake(ejector_mtr, ejector_mtr2);
-//                chuteEject(0,0);
-////            } else {
-////                std::cout << "the ball was blue" << std::endl;
-//                ejector_mtrs_mutex.give();
-//            }
-//        }
-//        pros::Task::delay_until(&now, TASK_DELAY_NORMAL);
-//    }
-//}
+
 
 void lessSmartEjectCycle(void* param) {
     std::uint32_t now = pros::millis();
@@ -388,6 +255,7 @@ void lessSmartEjectCycle(void* param) {
             if (indexer_mutex.take(MUTEX_WAIT_SHORT) && ejector_mutex.take(MUTEX_WAIT_SHORT)) {
                 flywheel_mtr.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
                 flywheel_mtr2.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+                flyWheelMove(0);
                 std::uint32_t now = pros::millis();
                 std::cout << "eject ball cycle" << std::endl;
                 int start_time = pros::millis();
@@ -397,7 +265,7 @@ void lessSmartEjectCycle(void* param) {
                 while (!ballLeaveGet() && elapsed_time < 1000) {
                     std::cout << "slow" << std::endl;
                     indexerMove(100, 1);
-                    ejectorMove(-75);
+                    ejectorMove(-100);
                     std::cout << elapsed_time << std::endl;
 //                    if (ballPos2ColorGet() == 2 && colorModeGet() == EJECT_RED) { //don't eject the blue coming in next
 //                        std::cout << "stop extra blue eject" << std::endl;
@@ -429,6 +297,7 @@ void chuteLessSmartControl(void* param) {
     std::uint32_t now = pros::millis();
     int startTime = 0;
     bool doubleClick = false;
+    bool flyWheelBlock = false;
 
 
     while(true) {
@@ -445,7 +314,7 @@ void chuteLessSmartControl(void* param) {
 
         if (chute_mutex.take(MUTEX_WAIT_SHORT)) {
             //doubleClick Logic
-            if (right1New && now - startTime < 500) { // if double click right1
+            if (right1New && now - startTime < 1000) { // if double click right1
                 doubleClick = true;
             } else if (right1New) {
                 startTime = now;
@@ -464,12 +333,18 @@ void chuteLessSmartControl(void* param) {
             //button logic
              if (left1 && !right1) { //index balls
                 if (indexer_mutex.take(MUTEX_WAIT_SHORT)) {
+                    if (flyWheelBlock) {
+                        flyWheelMove(0);
+                    }
+                    flyWheelBlock = false;
 //                    std::cout << "index balls" << std::endl;
                     std::cout << "speed" << std::endl;
+                    flyWheelMove(-20);
                     indexerMove(127, .7);
                     indexer_mutex.give();
                 }
             } else if (right1) {
+                 flyWheelBlock = true;
                 if (doubleClick) { // if double click right1
                     if (indexer_mutex.take(MUTEX_WAIT_SHORT)) {
                         indexerMove(127, .7);
