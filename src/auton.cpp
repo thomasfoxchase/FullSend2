@@ -364,7 +364,8 @@ void newAuton() {
 //    setEjectIt(true);
     indexerMove(90,1);
     intakeMove(-70);
-    basePIDMoveHeading(2.8, -90, 0.2, 2000);
+    basePIDMoveHeading(2.7, -90, 0.2, 2000);
+    basePIDMoveHeading(2.7, -90, 0.2, 2000);
     indexerMove(0,0);
     intakeMove(0);
 //    outdexFix();

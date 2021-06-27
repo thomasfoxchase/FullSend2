@@ -52,7 +52,7 @@ void baseControl(void* param) { //tank control
       right_middle_mtr = right;
 
       if (b) { // tester for auton features
-          autoFunctionTester(-45);
+//          baseTester();
       } else if (y) {
           autoFunctionTester(-90);
       } else if (x) {

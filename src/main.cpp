@@ -65,12 +65,12 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-//    chuteAutoTaskInit();
-//    timerTaskInit();
-//    std::cout << "in auto" << std::endl;
-//    blueAuton4();
-//    redAuton();
-//    baseTester();
+////    chuteAutoTaskInit();
+////    timerTaskInit();
+////    std::cout << "in auto" << std::endl;
+////    blueAuton4();
+////    redAuton();
+////    baseTester();
     newAuton();
 //    redAuton();
 }
